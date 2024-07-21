@@ -31,12 +31,12 @@ public:
     // Запрещаем копирование и присваивание объектов SessionBase и его наследников
     SessionBase(const SessionBase&) = delete;
     SessionBase& operator=(const SessionBase&) = delete;
+    void Run();
 protected:
     using HttpRequest = http::request<http::string_body>;
     explicit SessionBase(tcp::socket&& socket)
         : stream_(std::move(socket)) {
     }
-    void Run();
     template <typename Body, typename Fields>
     void Write(http::response<Body, Fields>&& response) {
         // Запись выполняется асинхронно, поэтому response перемещаем в область кучи
