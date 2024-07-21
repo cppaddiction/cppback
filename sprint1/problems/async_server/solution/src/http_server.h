@@ -196,7 +196,11 @@ private:
 
 template <typename RequestHandler>
 void ServeHttp(net::io_context& ioc, const tcp::endpoint& endpoint, RequestHandler&& handler) {
-    // Напишите недостающий код, используя информацию из урока
+    // При помощи decay_t исключим ссылки из типа RequestHandler,
+    // чтобы Listener хранил RequestHandler по значению
+    using MyListener = Listener<std::decay_t<RequestHandler>>;
+
+    std::make_shared<MyListener>(ioc, endpoint, std::forward<RequestHandler>(handler))->Run();
 }
 
 }  // namespace http_server
