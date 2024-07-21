@@ -4,7 +4,11 @@
 #include <iostream>
 
 namespace http_server {
-
+    void ReportError(beast::error_code ec, std::string_view what)
+    {
+        using namespace std::literals;
+        std::cerr << what << ": "sv << ec.message() << std::endl;
+    }
     void SessionBase::Run() {
         // Вызываем метод Read, используя executor объекта stream_.
         // Таким образом вся работа со stream_ будет выполняться, используя его executor
