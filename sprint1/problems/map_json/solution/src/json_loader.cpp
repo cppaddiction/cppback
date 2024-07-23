@@ -33,7 +33,7 @@ model::Game LoadGame(const std::filesystem::path& json_path) {
             for (const auto& r : roads)
             {
                 ::boost::json::value const* const p_value{ r.as_object().if_contains("x1")};
-                if (p_value)
+                if (!p_value)
                 {
                     mm.AddRoad(model::Road{model::Road::HORIZONTAL, model::Point{static_cast<int>(r.as_object().at("x0").as_int64()), static_cast<int>(r.as_object().at("y0").as_int64())},  static_cast<int>(r.as_object().at("x1").as_int64()) });
                 }

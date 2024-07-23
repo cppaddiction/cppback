@@ -109,7 +109,7 @@ StringResponse HandleRequest(StringRequest&& req, const model::Game& gm) {
                 {
                     auto start = r.GetStart();
                     auto end = r.GetEnd();
-                    if (!r.IsHorizontal())
+                    if (r.IsHorizontal())
                     {
                         helpbuilder.StartDict().Key("x0").Value(start.x).Key("y0").Value(start.y).Key("x1").Value(end.x).EndDict();
                     }
