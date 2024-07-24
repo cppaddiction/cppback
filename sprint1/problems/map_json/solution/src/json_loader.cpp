@@ -1,5 +1,4 @@
 #include "json_loader.h"
-#include <boost/json.hpp>
 
 namespace json = boost::json;
 using namespace std::literals;

@@ -80,8 +80,7 @@ StringResponse HandleRequest(StringRequest&& req, const model::Game& gm) {
     if (req.method() == http::verb::get)
     {
         auto str_form = static_cast<std::string>(req.target());
-        auto last_zero = str_form.find_first_of('0');
-        if (str_form.substr(last_zero + 2) == "api/v1/maps" || str_form.substr(last_zero + 2) == "api/v1/maps/")
+        if (str_form == "/api/v1/maps" || str_form == "/api/v1/maps/")
         {
             builder.StartArray();
             const auto& maps = gm.GetMaps();
@@ -92,9 +91,9 @@ StringResponse HandleRequest(StringRequest&& req, const model::Game& gm) {
             auto result = json::Print(builder.EndArray().Build());
             return text_response(http::status::ok, result, result.size());
         }
-        else if (str_form.substr(last_zero + 2, 12) == "api/v1/maps/" && str_form.substr(last_zero + 2) != "api/v1/maps/")
+        else if (str_form.substr(0, 13) == "/api/v1/maps/" && str_form != "/api/v1/maps/")
         {
-            auto id = str_form.substr(last_zero + 14);
+            auto id = str_form.substr(13);
             if (id[id.size() - 1] == '/')
             {
                 id = id.substr(0, id.size() - 1);

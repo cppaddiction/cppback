@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <boost/json.hpp>
 #include "model.h"
 
 namespace json_loader {
