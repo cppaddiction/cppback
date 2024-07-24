@@ -10,7 +10,8 @@ RUN apt update && \
 
 # Запуск conan как раньше
 COPY conanfile.txt /app/
-RUN mkdir /app/build && cd /app/build && conan profile detect && conan install .. --build=missing
+RUN mkdir /app/build && cd /app/build && \
+    conan install .. --build=missing
 
 # Папка data больше не нужна
 COPY ./src /app/src
@@ -18,7 +19,6 @@ COPY CMakeLists.txt /app/
 
 RUN cd /app/build && \
     cmake -DCMAKE_BUILD_TYPE=Release .. && \
-    cmake .. && \	
     cmake --build .
 
 # Второй контейнер в том же докерфайле
