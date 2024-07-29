@@ -73,6 +73,8 @@ private:
 
 class Building {
 public:
+    /*–азве это конструктор без параметров? Rectangle bounds же передаЄтс€.
+    Ќо в любом случае код в этом файле - код игровой модели, вз€тый целиком из учебника, так что не думаю, что это критично.*/
     explicit Building(Rectangle bounds) noexcept
         : bounds_{bounds} {
     }
