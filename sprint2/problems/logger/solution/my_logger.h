@@ -52,13 +52,6 @@ public:
     void Log(const T0& v0, const Ts&... vs)
     {
         std::lock_guard<std::recursive_mutex> lock(m1_);
-        if (file_ != GetFileTimeStamp())
-        {
-            file_ = GetFileTimeStamp();
-            if (log_file_.is_open())
-                log_file_.close();
-            log_file_.open(file_);
-        }
         if (start_logging_)
         {
             log_file_ << GetTimeStamp() << ": "sv;
@@ -66,7 +59,6 @@ public:
         }
         log_file_<<v0;
         if constexpr (sizeof...(vs) != 0) {
-            log_file_ << ", "sv;
             Log(vs...);  // Рекурсивно выводим остальные параметры
         }
         else
