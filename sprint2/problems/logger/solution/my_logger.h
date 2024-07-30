@@ -35,7 +35,7 @@ class Logger {
         const auto t_c = std::chrono::system_clock::to_time_t(now);
         std::ostringstream temp;
         temp << std::put_time(std::localtime(&t_c), "%Y_%m_%d");
-        return "/var/log/sample_log_" + temp.str() + ".log";
+        return "sample_log_" + temp.str();
     }
 
     Logger() = default;
@@ -52,6 +52,13 @@ public:
     void Log(const T0& v0, const Ts&... vs)
     {
         std::lock_guard<std::recursive_mutex> lock(m1_);
+        if (file_ != GetFileTimeStamp())
+        {
+            file_ = GetFileTimeStamp();
+            if (log_file_.is_open())
+                log_file_.close();
+            log_file_.open(file_);
+        }
         if (start_logging_)
         {
             log_file_ << GetTimeStamp() << ": "sv;
