@@ -63,7 +63,6 @@ public:
         }
         else
         {
-            log_file_ << "\n"sv;
             start_logging_ = true;
         }
     }
