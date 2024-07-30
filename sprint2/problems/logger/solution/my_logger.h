@@ -76,10 +76,12 @@ public:
     {
         std::lock_guard<std::mutex> lock(m2_);
         manual_ts_ = ts;
-        if (GetFileTimeStamp() != file_)
+        if (file_ != GetFileTimeStamp())
         {
             file_ = GetFileTimeStamp();
-            log_file_.open(file_ );
+            if(log_file_.is_open())
+                log_file_.close();
+            log_file_.open(file_);
         }
     }
 

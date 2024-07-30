@@ -8,6 +8,7 @@
 using namespace std::literals;
 
 int main() {
+    
     // Будем устанавливать моменты времени в секундах от начала эпохи.
     // Конкретные значения не так важны, главное, что часы идут монотонно.
     Logger::GetInstance().SetTimestamp(std::chrono::system_clock::time_point{ 1000000s });
