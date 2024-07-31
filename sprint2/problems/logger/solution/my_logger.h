@@ -52,14 +52,6 @@ public:
     void Log(const T0& v0, const Ts&... vs)
     {
         std::lock_guard<std::recursive_mutex> lock(m1_);
-        if (entered_)
-        {
-            log_file_ << '\n';
-        }
-        else
-        {
-            entered_ = true;
-        }
         if (start_logging_)
         {
             log_file_ << GetTimeStamp() << ": "sv;
@@ -67,12 +59,11 @@ public:
         }
         log_file_<<v0;
         if constexpr (sizeof...(vs) != 0) {
-            entered_ = false;
             Log(vs...);  // Рекурсивно выводим остальные параметры
         }
         else
         {
-            entered_ = true;
+            log_file_ << "\n"sv;
             start_logging_ = true;
         }
     }
@@ -90,7 +81,6 @@ public:
             if(log_file_.is_open())
                 log_file_.close();
             log_file_.open(file_);
-            entered_ = false;
         }
     }
 
@@ -101,5 +91,4 @@ private:
     std::ofstream log_file_;
     bool start_logging_ = true;
     std::string file_;
-    bool entered_ = false;
 };
