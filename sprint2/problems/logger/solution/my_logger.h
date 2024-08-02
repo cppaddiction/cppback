@@ -48,24 +48,13 @@ public:
     }
 
     // Выведите в поток все аргументы.
-    template<class T0, class... Ts>
-    void Log(const T0& v0, const Ts&... vs)
+    template<class... Ts>
+    void Log(const Ts&... vs)
     {
-        std::lock_guard<std::recursive_mutex> lock(m1_);
-        if (start_logging_)
-        {
-            log_file_ << GetTimeStamp() << ": "sv;
-            start_logging_ = false;
-        }
-        log_file_<<v0;
-        if constexpr (sizeof...(vs) != 0) {
-            Log(vs...);  // Рекурсивно выводим остальные параметры
-        }
-        else
-        {
-            log_file_ << "\n"sv;
-            start_logging_ = true;
-        }
+        std::lock_guard<std::mutex> lock(m1_);
+        log_file_ << GetTimeStamp() << ": "sv;
+        (log_file_ << ... << vs);
+        log_file_ << '\n';
     }
 
     // Установите manual_ts_. Учтите, что эта операция может выполняться
@@ -86,9 +75,8 @@ public:
 
 private:
     std::optional<std::chrono::system_clock::time_point> manual_ts_;
-    std::recursive_mutex m1_;
+    std::mutex m1_;
     std::mutex m2_;
     std::ofstream log_file_;
-    bool start_logging_ = true;
     std::string file_;
 };
