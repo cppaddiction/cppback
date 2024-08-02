@@ -52,7 +52,6 @@ public:
     void Log(const Ts&... vs)
     {
         std::lock_guard<std::mutex> lock(m1_);
-        log_file_.open(file_);
         log_file_ << GetTimeStamp() << ": "sv;
         (log_file_ << ... << vs);
         log_file_ << std::endl;
@@ -70,6 +69,7 @@ public:
             file_ = GetFileTimeStamp();
             if(log_file_.is_open())
                 log_file_.close();
+	    log_file_.open(file_);
         }
     }
 
