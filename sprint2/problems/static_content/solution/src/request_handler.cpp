@@ -241,8 +241,8 @@ namespace http_handler {
     }
 
     std::variant<RequestHandler::StringResponse, RequestHandler::FileResponse> RequestHandler::HandleRequest(StringRequest&& req, const model::Game& gm) const {
-        const auto text_response = [&req, this](http::status status, std::string_view text, int x) {
-            return this->MakeStringResponse(status, text, x, req.version(), req.keep_alive());
+        const auto text_response = [&req, this](http::status status, std::string_view text, int x, std::string_view content_type=ContentType::JSON) {
+            return this->MakeStringResponse(status, text, x, req.version(), req.keep_alive(), content_type);
             };
         const auto text_invalid_response = [&req, this](http::status status, std::string_view text, int x) {
             return this->MakeStringInvalidResponse(status, text, x, req.version(), req.keep_alive());
@@ -280,6 +280,11 @@ namespace http_handler {
                     return text_response(http::status::not_found, result, result.size());
                 }
             }
+            else if (str_form.substr(0, 4) == API)
+            {
+                auto result = BadRequest(builder);
+                return text_response(http::status::bad_request, result, result.size());
+            }
             else if (str_form == ROOT)
             {
                 fs::path request_path{ "/index.html" };
@@ -309,7 +314,7 @@ namespace http_handler {
                     else
                     {
                         auto result = FileNotFound(builder);
-                        return text_response(http::status::not_found, result, result.size());
+                        return text_response(http::status::not_found, result, result.size(), ContentType::TEXT);
                     }
                 }
                 catch (...)

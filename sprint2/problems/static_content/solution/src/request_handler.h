@@ -52,6 +52,8 @@ constexpr static const char* OffsetY = "offsetY";
 constexpr static const char* MAPS_PATH_WITHOUT_SLASH = "/api/v1/maps";
 constexpr static const char* MAPS_PATH_WITH_SLASH = "/api/v1/maps/";
 
+constexpr static const char* API = "/api";
+
 constexpr static const char* ROOT = "/";
 
 constexpr static std::string_view INVALID_METHOD = "Invalid method"sv;
@@ -64,7 +66,8 @@ using FileResponse = http::response<http::file_body>;
 
 struct ContentType {
     ContentType() = delete;
-    constexpr static std::string_view TEXT_HTML = "application/json"sv;
+    constexpr static std::string_view JSON = "application/json"sv;
+    constexpr static std::string_view TEXT = "text/plain"sv;
 };
 
 struct Allow {
@@ -105,11 +108,11 @@ public:
 
     StringResponse MakeStringResponse(http::status status, std::string_view body, int x, unsigned http_version,
         bool keep_alive,
-        std::string_view content_type = ContentType::TEXT_HTML) const;
+        std::string_view content_type) const;
 
     StringResponse MakeStringInvalidResponse(http::status status, std::string_view body, int x, unsigned http_version,
         bool keep_alive,
-        std::string_view content_type = ContentType::TEXT_HTML, std::string_view allow = Allow::GET) const;
+        std::string_view content_type = ContentType::JSON, std::string_view allow = Allow::GET) const;
 
     std::variant<FileResponse, FileResponseErrors> MakeFileResponse(fs::path path) const;
 
