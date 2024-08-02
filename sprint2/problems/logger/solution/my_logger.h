@@ -26,7 +26,7 @@ class Logger {
     auto GetTimeStamp() const {
         const auto now = GetTime();
         const auto t_c = std::chrono::system_clock::to_time_t(now);
-        return std::put_time(std::gmtime(&t_c), "%F %T");
+        return std::put_time(std::localtime(&t_c), "%F %T");
     }
 
     // Для имени файла возьмите дату с форматом "%Y_%m_%d"
@@ -34,7 +34,7 @@ class Logger {
         const auto now = GetTime();
         const auto t_c = std::chrono::system_clock::to_time_t(now);
         std::ostringstream temp;
-        temp << std::put_time(std::gmtime(&t_c), "%Y_%m_%d");
+        temp << std::put_time(std::localtime(&t_c), "%Y_%m_%d");
         return "/var/log/sample_log_" + temp.str() + ".log";
     }
 
@@ -52,9 +52,10 @@ public:
     void Log(const Ts&... vs)
     {
         std::lock_guard<std::mutex> lock(m1_);
+        log_file_.open(file_);
         log_file_ << GetTimeStamp() << ": "sv;
         (log_file_ << ... << vs);
-        log_file_ << '\n';
+        log_file_ << std::endl;
     }
 
     // Установите manual_ts_. Учтите, что эта операция может выполняться
@@ -69,7 +70,6 @@ public:
             file_ = GetFileTimeStamp();
             if(log_file_.is_open())
                 log_file_.close();
-            log_file_.open(file_);
         }
     }
 
