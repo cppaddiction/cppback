@@ -28,7 +28,7 @@ class LoggingRequestHandler {
 	template <typename Body, typename Allocator>
 	void LogRequest(http::request<Body, http::basic_fields<Allocator>>&& req, std::string ip_string) {
 		http_server::InitLogging(&RequestFormatter);
-		BOOST_LOG_TRIVIAL(info)<<logging::add_value(target, static_cast<std::string>(req.target()))<<logging::add_value(method, static_cast<std::string>(req.method_string()))<<logging::add_value(ip, ip_string)<<"request recieved"sv;
+		BOOST_LOG_TRIVIAL(info)<<logging::add_value(target, static_cast<std::string>(req.target()))<<logging::add_value(method, static_cast<std::string>(req.method_string()))<<logging::add_value(ip, ip_string)<<"request received"sv;
 	}
 public:
 	LoggingRequestHandler(SomeRequestHandler& handler):decorated_(handler) {}
