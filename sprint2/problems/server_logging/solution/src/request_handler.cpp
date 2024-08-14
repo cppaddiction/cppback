@@ -1,26 +1,6 @@
 #include "request_handler.h"
 
 namespace http_handler {
-    void RequestFormatter(logging::record_view const& rec, logging::formatting_ostream& strm) {
-		std::ostringstream mssg;
-		mssg << rec[logging::expressions::smessage];
-		json::Builder helpbuilder;
-		helpbuilder.StartDict().Key("message").Value(mssg.str()).Key("timestamp").Value(to_iso_extended_string(*rec[timestamp])).Key("data");
-		json::Builder help_helpbuilder;
-		json::Dict data_obj = help_helpbuilder.StartDict().Key("ip").Value(*rec[ip]).Key("URI").Value(*rec[target]).Key("method").Value(*rec[method]).EndDict().Build().AsMap();
-		strm<<json::Print(helpbuilder.Value(data_obj).EndDict().Build());
-    }
-   
-   void ResponseFormatter(logging::record_view const& rec, logging::formatting_ostream& strm) {
-	std::ostringstream mssg;
-	mssg << rec[logging::expressions::smessage];
-	json::Builder helpbuilder;
-	helpbuilder.StartDict().Key("message").Value(mssg.str()).Key("timestamp").Value(to_iso_extended_string(*rec[timestamp])).Key("data");
-	json::Builder help_helpbuilder;
-	json::Dict data_obj = help_helpbuilder.StartDict().Key("response_time").Value(*rec[response_time]).Key("code").Value(*rec[response_code]).Key("content_type").Value(*rec[content_type]).EndDict().Build().AsMap();
-	strm<<json::Print(helpbuilder.Value(data_obj).EndDict().Build());
-    }
- 
     RequestHandler::StringResponse RequestHandler::MakeStringResponse(http::status status, std::string_view body, int x, unsigned http_version,
         bool keep_alive,
         std::string_view content_type) const
@@ -115,6 +95,7 @@ namespace http_handler {
         return ContentType;
     }
 
+
     std::variant<RequestHandler::FileResponse, RequestHandler::FileResponseErrors> RequestHandler::MakeFileResponse(fs::path path) const
     {
         std::variant<RequestHandler::FileResponse, RequestHandler::FileResponseErrors> r;
@@ -138,19 +119,19 @@ namespace http_handler {
         res.result(http::status::ok);
         res.insert(http::field::content_type, DetectContentType(temp.substr(temp.find_last_of(".") + 1)));
         res.body() = std::move(file);
-        // ����� prepare_payload ��������� ��������� Content-Length � Transfer-Encoding
-        // � ����������� �� ������� ���� ���������
+        //       prepare_payload                     Content-Length   Transfer-Encoding
+        //                                        
         res.prepare_payload();
         r = std::move(res);
         return r;
     }
 
     bool RequestHandler::IsSubPath(fs::path path, fs::path base) const {
-        // �������� ��� ���� � ����������� ���� (��� . � ..)
+        //                                      (    .   ..)
         path = fs::weakly_canonical(path);
         base = fs::weakly_canonical(base);
 
-        // ���������, ��� ��� ���������� base ���������� ������ path
+        //          ,                    base                   path
         for (auto b = base.begin(), p = path.begin(); b != base.end(); ++b, ++p) {
             if (p == path.end() || *p != *b) {
                 return false;
@@ -261,7 +242,7 @@ namespace http_handler {
     }
 
     std::variant<RequestHandler::StringResponse, RequestHandler::FileResponse> RequestHandler::HandleRequest(StringRequest&& req, const model::Game& gm) const {
-        const auto text_response = [&req, this](http::status status, std::string_view text, int x, std::string_view content_type=ContentType::JSON) {
+        const auto text_response = [&req, this](http::status status, std::string_view text, int x, std::string_view content_type = ContentType::JSON) {
             return this->MakeStringResponse(status, text, x, req.version(), req.keep_alive(), content_type);
             };
         const auto text_invalid_response = [&req, this](http::status status, std::string_view text, int x) {
@@ -349,7 +330,7 @@ namespace http_handler {
         {
             return text_invalid_response(http::status::method_not_allowed, INVALID_METHOD, 14);
         }
-        // ����� ����� ���������� ������ � ������������ �����, �� ���� ������ ��������: Hello
+        //                                                   ,                        : Hello
     }
 }  // namespace http_handler
 
