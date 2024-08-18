@@ -549,7 +549,13 @@ namespace http_handler {
                     if (temp.str() == "Authorization")
                     {
                         auth_token = field.value();
-                        auth_token=auth_token.substr(7, auth_token.size() - 7);
+                        try {
+                            auth_token = auth_token.substr(7, auth_token.size() - 7);
+                        }
+                        catch (...)
+                        {
+                            auth_token = "";
+                        }
                         break;
                     }
                 }
@@ -558,8 +564,8 @@ namespace http_handler {
                     auto result = AuthFailed(builder);
                     return text_cache_response(http::status::unauthorized, result, result.size(), Cache::NO_CACHE);
                 }
-                app::Token tagged_token{ auth_token };
                 try {
+                    app::Token tagged_token{ auth_token };
                     auto player = players_.FindByToken(tagged_token);
                     auto result = GetPlayers(builder, player.GetSession().GetDogs());
                     return text_cache_response(http::status::ok, result, result.size(), Cache::NO_CACHE);
