@@ -505,6 +505,12 @@ namespace http_handler {
                     namespace js = boost::json;
                     auto req_body = req.body();
                     auto value = js::parse(req_body).as_object();
+                    auto user_name = static_cast<std::string>(value.at(USER_NAME).as_string());
+                    if (user_name == "")
+                    {
+                        auto result = BadRequest(builder, INVALID_ARGUEMENT, INVALID_NAME);
+                        return text_cache_response(http::status::bad_request, result, result.size(), Cache::NO_CACHE);
+                    }
                     auto map_id = static_cast<std::string>(value.at(MAP_ID).as_string());
                     model::Map::Id tagged_map_id{ map_id };
                     auto search = game_.FindMap(tagged_map_id);
@@ -512,12 +518,6 @@ namespace http_handler {
                     {
                         auto result = MapNotFound(builder);
                         return text_cache_response(http::status::not_found, result, result.size(), Cache::NO_CACHE);
-                    }
-                    auto user_name = static_cast<std::string>(value.at(USER_NAME).as_string());
-                    if (user_name == "")
-                    {
-                        auto result = BadRequest(builder, INVALID_ARGUEMENT, INVALID_NAME);
-                        return text_cache_response(http::status::bad_request, result, result.size(), Cache::NO_CACHE);
                     }
                     model::Dog dog(user_name);
                     std::shared_ptr<model::GameSession> session = sm_.FindSession(search, 0);
