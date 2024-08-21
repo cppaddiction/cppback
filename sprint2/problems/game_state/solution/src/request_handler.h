@@ -116,7 +116,7 @@ namespace http_handler {
         const std::string AUTH_TOKEN = "authToken";
         const std::string PLAYER_ID = "playerId";
 
-        const std::string ALLOWED_TOKEN_SYMBOLS = "0123456789abcdef";
+        const std::string ALLOWED_TOKEN_SYMBOLS = "0123456789abcdefABCDEF";
         const std::string INVALID_TOKEN = "invalidToken";
         const std::string AUTH_FAILED_MESSAGE="Authorization header is missing/contains invalid value";
         const std::string UNKNOWN_TOKEN="unknownToken";
@@ -274,7 +274,7 @@ namespace http_handler {
             {
                 auto handle = [self = shared_from_this(), send, req = std::forward<decltype(req)>(req)] {
                     try {
-                        // Этот assert не выстрелит, так как лямбда-функция будет выполняться внутри strand
+                        //      assert             ,               -                                 strand
                         assert(self->api_strand_.running_in_this_thread());
                         int time;
                         DurationMeasure* dm = new DurationMeasure(time);
