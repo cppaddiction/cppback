@@ -378,7 +378,9 @@ namespace http_handler {
 
     std::string ApiHandler::GameState(json::Builder& builder, const std::vector<model::Dog>& dogs) const
     {
-        builder.StartDict();
+        builder.StartDict().Key(PLAYERS);
+        json::Builder helper;
+        helper.StartDict();
         for (const auto& dog : dogs)
         {
             json::Builder helpbuilder;
@@ -386,9 +388,9 @@ namespace http_handler {
             auto spd = dog.GetSpd();
             json::Array pos{ json::Node(ps.x), json::Node(ps.y) };
             json::Array speed{ json::Node(spd.vx), json::Node(spd.vy) };
-            builder.Key(std::to_string(dog.GetId())).Value(helpbuilder.StartDict().Key(NAME).Value(dog.GetName()).Key(POS).Value(pos).Key(SPEED).Value(speed).Key(DIR).Value(dog.GetDir()).EndDict().Build().AsMap());
+            helper.Key(std::to_string(dog.GetId())).Value(helpbuilder.StartDict().Key(NAME).Value(dog.GetName()).Key(POS).Value(pos).Key(SPEED).Value(speed).Key(DIR).Value(dog.GetDir()).EndDict().Build().AsMap());
         }
-        return json::Print(builder.EndDict().Build());
+        return json::Print(builder.Value(helper.EndDict().Build().AsMap()).EndDict().Build());
     }
     
     json::Array ApiHandler::CollectRoads(const model::Map* m) const {
@@ -640,7 +642,7 @@ namespace http_handler {
                 auto result = InvalidMethod(builder, GET_HEAD);
                 return text_invalid_cache_response(http::status::method_not_allowed, result, result.size(), Allow::GET_HEAD, Cache::NO_CACHE);
             }
-            }
+        }
         else
         {
             auto result = BadRequest(builder);
