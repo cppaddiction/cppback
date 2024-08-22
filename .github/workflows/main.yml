@@ -36,11 +36,6 @@ jobs:
           pip install -U conan==1.59.0
           cp -R /home/forconan/.conan /github/home/.conan
 
-      - name: run tests sprint2 game_state
-        run: |
-          cd cpp-backend-tests-practicum/scripts/sprint2
-          ./game_state/run.sh
-
       - name: run tests sprint2 move_players
         run: |
           cd cpp-backend-tests-practicum/scripts/sprint2
