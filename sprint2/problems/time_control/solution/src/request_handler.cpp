@@ -756,42 +756,50 @@ namespace http_handler {
         }
         else if (str_form == GAME_TICK_WITH_SLASH || str_form == GAME_TICK_WITHOUT_SLASH)
         {
-            try {
-                std::string content_type = "";
-                for (auto& field : req.base())
-                {
-                    std::ostringstream temp; temp << field.name();
-                    if (temp.str() == "Content-Type")
-                    {
-                        content_type = field.value();
-                        break;
-                    }
-                }
-                if (content_type != "application/json")
-                {
-                    throw std::invalid_argument(BAD_REQUEST_MESSAGE);
-                }
-
-                namespace js = boost::json;
-                auto req_body = req.body();
-                auto value = js::parse(req_body).as_object();
-                auto time_str = static_cast<std::string>(value.at(TIME_DELTA).as_string());
-
-                if (!CheckTime(time_str))
-                {
-                    throw std::invalid_argument(BAD_REQUEST_MESSAGE);
-                }
-
-                auto time = static_cast<std::uint64_t>(stoll(time_str));
-                sm_.UpdateAllSessions(time);
-                players_.SyncronizeSession();
-                auto result = MoveRequestOrTimeTickRequest(builder);
-                return text_cache_response(http::status::ok, result, result.size(), Cache::NO_CACHE);
-            }
-            catch (...)
+            if (req.method() == http::verb::post)
             {
-                auto result = BadRequest(builder, INVALID_ARGUEMENT, GAME_TICK_PARSE_ERROR_OR_CONTENT_TYPE_ERROR);
-                return text_cache_response(http::status::bad_request, result, result.size(), Cache::NO_CACHE);
+                try {
+                    std::string content_type = "";
+                    for (auto& field : req.base())
+                    {
+                        std::ostringstream temp; temp << field.name();
+                        if (temp.str() == "Content-Type")
+                        {
+                            content_type = field.value();
+                            break;
+                        }
+                    }
+                    if (content_type != "application/json")
+                    {
+                        throw std::invalid_argument(BAD_REQUEST_MESSAGE);
+                    }
+
+                    namespace js = boost::json;
+                    auto req_body = req.body();
+                    auto value = js::parse(req_body).as_object();
+                    auto time_str = static_cast<std::string>(value.at(TIME_DELTA).as_string());
+
+                    if (!CheckTime(time_str))
+                    {
+                        throw std::invalid_argument(BAD_REQUEST_MESSAGE);
+                    }
+
+                    auto time = static_cast<std::uint64_t>(stoll(time_str));
+                    sm_.UpdateAllSessions(time);
+                    players_.SyncronizeSession();
+                    auto result = MoveRequestOrTimeTickRequest(builder);
+                    return text_cache_response(http::status::ok, result, result.size(), Cache::NO_CACHE);
+                }
+                catch (...)
+                {
+                    auto result = BadRequest(builder, INVALID_ARGUEMENT, GAME_TICK_PARSE_ERROR_OR_CONTENT_TYPE_ERROR);
+                    return text_cache_response(http::status::bad_request, result, result.size(), Cache::NO_CACHE);
+                }
+            }
+            else
+            {
+                auto result = InvalidMethod(builder, POST);
+                return text_invalid_cache_response(http::status::method_not_allowed, result, result.size(), Allow::POST, Cache::NO_CACHE);
             }
         }
         else

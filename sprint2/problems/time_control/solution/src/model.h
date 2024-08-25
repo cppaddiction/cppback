@@ -108,8 +108,8 @@ struct RoadHasher {
 
 class Building {
 public:
-    /*                                    ? Rectangle bounds             .
-                                       -                   ,                           ,                 ,                 .*/
+    /*–азве это конструктор без параметров? Rectangle bounds же передаЄтс€.
+    Ќо в любом случае код в этом файле - код игровой модели, вз€тый целиком из учебника, так что не думаю, что это критично.*/
     explicit Building(Rectangle bounds) noexcept
         : bounds_{bounds} {
     }
@@ -209,8 +209,8 @@ public:
         int start, end; start = road.IsHorizontal() ? road_start.x : road_start.y; end = road.IsHorizontal() ? road_end.x : road_end.y;
         std::uniform_real_distribution<> dist_double(start, end);
         auto value = std::round(dist_double(rd) * 10) / 10;
-	auto temp = roads[0].GetStart();
-        return std::make_pair(&roads[0], Position{temp.x, temp.y});
+        auto temp = roads[0].GetStart();
+        return std::make_pair(&roads[0], Position{static_cast<double>(temp.x), static_cast<double>(temp.y)});
         //return std::make_pair(&road, road.IsHorizontal() ? Position{value, std::round(static_cast<double>(road_start.y) * 10) / 10} : Position{std::round(static_cast<double>(road_start.x) * 10) / 10, value});
     }
 
