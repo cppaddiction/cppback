@@ -777,8 +777,10 @@ namespace http_handler {
                     namespace js = boost::json;
                     auto req_body = req.body();
                     auto value = js::parse(req_body).as_object();
+                    auto time_str = value.at(TIME_DELTA).as_uint64();
+                    /*
                     auto time_str = static_cast<std::string>(value.at(TIME_DELTA).as_string());
-
+                    
                     if (!CheckTime(time_str))
                     {
                         throw std::invalid_argument(BAD_REQUEST_MESSAGE);
@@ -786,6 +788,8 @@ namespace http_handler {
 
                     auto time = static_cast<std::uint64_t>(stoll(time_str));
                     sm_.UpdateAllSessions(time);
+                    */
+                    sm_.UpdateAllSessions(time_str);
                     players_.SyncronizeSession();
                     auto result = MoveRequestOrTimeTickRequest(builder);
                     return text_cache_response(http::status::ok, result, result.size(), Cache::NO_CACHE);
