@@ -777,7 +777,7 @@ namespace http_handler {
                     namespace js = boost::json;
                     auto req_body = req.body();
                     auto value = js::parse(req_body).as_object();
-                    auto time_str = value.at(TIME_DELTA).as_uint64();
+                    auto time_str = value.at(TIME_DELTA).as_int64();
                     /*
                     auto time_str = static_cast<std::string>(value.at(TIME_DELTA).as_string());
                     
