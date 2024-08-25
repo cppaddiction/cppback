@@ -72,7 +72,15 @@ struct NodePrinter {
     }
 
     void operator()([[maybe_unused]] double x) const {
-        out << x;
+        if (x)
+        {
+            out << x;
+        }
+        else
+        {
+            out.precision(1);
+            out << std::fixed << x;
+        }
     }
 
     void operator()([[maybe_unused]] std::string x) const {
