@@ -9,7 +9,17 @@ namespace app {
 
     class PlayerToken {
     public:
-        PlayerToken() {  strm_ << std::hex << generator1_() << generator2_(); }
+        PlayerToken() {  
+            strm_ << std::hex << generator1_() << generator2_();
+            int x = strm_.str().size();
+            if (x < 32)
+            {
+                for (int i = 0; i < 32 - x; i++)
+                {
+                    strm_ << '0';
+                }
+            }
+        }
         Token GetToken() const { return Token{ strm_.str() }; }
     private:
         std::random_device random_device_;
