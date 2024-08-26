@@ -17,8 +17,8 @@ struct Position {
 };
 
 struct Speed {
-    double vx = 0;
-    double vy = 0;
+    double vx = 0.0;
+    double vy = 0.0;
 };
 
 using Dimension = int;

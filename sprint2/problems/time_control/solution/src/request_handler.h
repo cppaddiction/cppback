@@ -137,7 +137,6 @@ namespace http_handler {
         const std::string GAME_TICK_WITH_SLASH = "/api/v1/game/tick/";
         const std::string GAME_TICK_PARSE_ERROR_OR_CONTENT_TYPE_ERROR = "Failed to parse tick/Invalid content type";
         const std::string TIME_DELTA = "timeDelta";
-        const std::string ALLOWED_TIME_SYMBOLS = "0123456789";
 
         using StringRequest = http::request<http::string_body>;
 
@@ -204,7 +203,6 @@ namespace http_handler {
         std::string GetPlayers(json::Builder& builder, const std::vector<model::Dog>& dogs) const;
         std::string GameState(json::Builder& builder, const std::vector<model::Dog>& dogs) const;
         std::string MoveRequestOrTimeTickRequest(json::Builder& builder) const;
-        bool CheckTime(const std::string& time) const;
 
     private:
         model::Game& game_;

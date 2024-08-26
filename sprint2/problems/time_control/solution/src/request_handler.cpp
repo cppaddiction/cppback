@@ -463,18 +463,6 @@ namespace http_handler {
         }
     }
 
-    bool ApiHandler::CheckTime(const std::string& time) const
-    {
-        for (const auto& ch : time)
-        {
-            if (std::find(ALLOWED_TIME_SYMBOLS.begin(), ALLOWED_TIME_SYMBOLS.end(), ch) == ALLOWED_TIME_SYMBOLS.end())
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-
     ApiHandler::StringResponse ApiHandler::HandleRequest(StringRequest&& req, const model::Game& gm) const {
         const auto text_response = [&req, this](http::status status, std::string_view text, int x) {
             return this->MakeStringResponse(status, text, x, req.version(), req.keep_alive());
@@ -498,12 +486,12 @@ namespace http_handler {
             if (req.method() == http::verb::get)
             {
                 auto result = GetMaps(builder, gm);
-                return text_response(http::status::ok, result, result.size());
+                return text_cache_response(http::status::ok, result, result.size(), Cache::NO_CACHE);
             }
             else
             {
                 auto result = InvalidMethod(builder, GET);
-                return text_invalid_response(http::status::method_not_allowed, result, result.size(), Allow::GET);
+                return text_invalid_cache_response(http::status::method_not_allowed, result, result.size(), Allow::GET, Cache::NO_CACHE);
             }
         }
         else if (str_form.substr(0, 13) == MAPS_PATH_WITH_SLASH && str_form != MAPS_PATH_WITH_SLASH)
@@ -518,18 +506,18 @@ namespace http_handler {
                 if (auto m = gm.FindMap(model::Map::Id(id)))
                 {
                     auto result = GetMapWithSpecificId(builder, m);
-                    return text_response(http::status::ok, result, result.size());
+                    return text_cache_response(http::status::ok, result, result.size(), Cache::NO_CACHE);
                 }
                 else
                 {
                     auto result = MapNotFound(builder);
-                    return text_response(http::status::not_found, result, result.size());
+                    return text_cache_response(http::status::not_found, result, result.size(), Cache::NO_CACHE);
                 }
             }
             else
             {
                 auto result = InvalidMethod(builder, GET);
-                return text_invalid_response(http::status::method_not_allowed, result, result.size(), Allow::GET);
+                return text_invalid_cache_response(http::status::method_not_allowed, result, result.size(), Allow::GET, Cache::NO_CACHE);
             }
         }
         else if (str_form == JOIN_GAME_WITH_SLASH || str_form == JOIN_GAME_WITHOUT_SLASH)
@@ -559,7 +547,7 @@ namespace http_handler {
                     std::shared_ptr<model::GameSession> session = sm_.FindSession(search, 0);
                     session->AddDog(dog);
                     auto& player = players_.Addplayer(dog, session);
-                    player.SetSpeed(0, -1, game_.GetDefaultDogSpeed());
+                    //player.SetSpeed(0, -1, game_.GetDefaultDogSpeed());
                     auto result = AuthRequest(builder, *player.GetAuthToken(), player.GetDog().GetId());
                     return text_cache_response(http::status::ok, result, result.size(), Cache::NO_CACHE);
                 }
@@ -758,19 +746,7 @@ namespace http_handler {
                     namespace js = boost::json;
                     auto req_body = req.body();
                     auto value = js::parse(req_body).as_object();
-
                     auto time_str = value.at(TIME_DELTA).as_int64();
-                    /*
-                    auto time_str = static_cast<std::string>(value.at(TIME_DELTA).as_string());
-                    
-                    if (!CheckTime(time_str))
-                    {
-                        throw std::invalid_argument(BAD_REQUEST_MESSAGE);
-                    }
-
-                    auto time = static_cast<std::uint64_t>(stoll(time_str));
-                    sm_.UpdateAllSessions(time);
-                    */
                     sm_.UpdateAllSessions(time_str);
                     players_.SyncronizeSession();
                     auto result = MoveRequestOrTimeTickRequest(builder);
