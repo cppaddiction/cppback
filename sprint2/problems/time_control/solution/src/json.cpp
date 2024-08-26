@@ -72,13 +72,15 @@ struct NodePrinter {
     }
 
     void operator()([[maybe_unused]] double x) const {
-        if (x-int(x) == 0)
+        
+        if (x-int(x) == 0.0)
         {
-            out.precision(1);
-            out << std::fixed << x;
+            std::ostringstream temp; temp << std::setprecision(1) << std::fixed << x;
+            out << temp.str();
         }
         else
         {
+            std::cout << "123";
             out << x;
         }
     }

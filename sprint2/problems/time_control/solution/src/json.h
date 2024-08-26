@@ -5,6 +5,7 @@
 #include <variant>
 #include <sstream>
 #include <iostream>
+#include <iomanip>
 #include <algorithm>
 
 namespace json {

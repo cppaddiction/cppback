@@ -384,6 +384,7 @@ namespace http_handler {
 
     std::string ApiHandler::GameState(json::Builder& builder, const std::vector<model::Dog>& dogs) const
     {
+        std::cout.precision(10);
         builder.StartDict().Key(PLAYERS);
         json::Builder helper;
         helper.StartDict();
@@ -392,6 +393,7 @@ namespace http_handler {
             json::Builder helpbuilder;
             auto ps = dog.GetPos();
             auto spd = dog.GetSpd();
+            std::cout << ps.x << " " << ps.y << "\n";
             json::Array pos{ json::Node(ps.x), json::Node(ps.y) };
             json::Array speed{ json::Node(spd.vx), json::Node(spd.vy) };
             helper.Key(std::to_string(dog.GetId())).Value(helpbuilder.StartDict().Key(NAME).Value(dog.GetName()).Key(POS).Value(pos).Key(SPEED).Value(speed).Key(DIR).Value(dog.GetDir()).EndDict().Build().AsMap());
