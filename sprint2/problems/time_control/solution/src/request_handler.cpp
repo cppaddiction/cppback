@@ -713,26 +713,7 @@ namespace http_handler {
                         auto value = js::parse(req_body).as_object();
                         auto move_dir = static_cast<std::string>(value.at(MOVE).as_string());
                         player.SetDir(move_dir);
-                        if (move_dir == "U")
-                        {
-                            player.SetSpeed(0, -1, game_.GetDefaultDogSpeed());
-                        }
-                        else if (move_dir == "D")
-                        {
-                            player.SetSpeed(0, 1, game_.GetDefaultDogSpeed());
-                        }
-                        else if (move_dir == "L")
-                        {
-                            player.SetSpeed(-1, 0, game_.GetDefaultDogSpeed());
-                        }
-                        else if (move_dir == "R")
-                        {
-                            player.SetSpeed(1, 0, game_.GetDefaultDogSpeed());
-                        }
-                        else
-                        {
-                            player.SetSpeed(0, 0, game_.GetDefaultDogSpeed());
-                        }
+                        player.SetSpeed(move_dir, game_.GetDefaultDogSpeed());
                         auto result = MoveRequestOrTimeTickRequest(builder);
                         return text_cache_response(http::status::ok, result, result.size(), Cache::NO_CACHE);
                     }
@@ -777,6 +758,7 @@ namespace http_handler {
                     namespace js = boost::json;
                     auto req_body = req.body();
                     auto value = js::parse(req_body).as_object();
+
                     auto time_str = value.at(TIME_DELTA).as_int64();
                     /*
                     auto time_str = static_cast<std::string>(value.at(TIME_DELTA).as_string());

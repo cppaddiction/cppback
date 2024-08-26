@@ -367,7 +367,7 @@ public:
             throw std::logic_error("No such dog");
         }
     }
-    void UpdateSession(std::uint64_t time) { 
+    void UpdateSession(std::uint64_t time) {
         //movement implementation
 
         const auto& m = GetMap();
@@ -386,24 +386,26 @@ public:
                 double greater_r1_x = (r1_st.x > r1_fn.x ? r1_st.x : r1_fn.x) + 0.4;
                 if (dir == "L")
                 {
-                    if (pos.x + spd.vx * time <= lesser_r1_x)
+                    if (pos.x + spd.vx * time/1000 <= lesser_r1_x)
                     {
                         pos.x = lesser_r1_x;
+                        d.SetSpeed(0.0, 0.0);
                     }
                     else
                     {
-                        pos.x += (spd.vx * time);
+                        pos.x += (spd.vx * time/1000);
                     }
                 }
                 else if (dir == "R")
                 {
-                    if (pos.x + spd.vx * time >= greater_r1_x)
+                    if (pos.x + spd.vx * time/1000 >= greater_r1_x)
                     {
                         pos.x = greater_r1_x;
+                        d.SetSpeed(0.0, 0.0);
                     }
                     else
                     {
-                        pos.x += (spd.vx * time);
+                        pos.x += (spd.vx * time/1000);
                     }
                 }
                 else if (dir == "U" || dir == "D")
@@ -438,24 +440,26 @@ public:
                             double greater_r2_y = (r2_st.y > r2_fn.y ? r2_st.y : r2_fn.y) + 0.4;
                             if (dir == "U")
                             {
-                                if (pos.y + spd.vy * time <= lesser_r2_y)
+                                if (pos.y + spd.vy * time/1000 <= lesser_r2_y)
                                 {
                                     pos.y = lesser_r2_y;
+                                    d.SetSpeed(0.0, 0.0);
                                 }
                                 else
                                 {
-                                    pos.y += (spd.vy * time);
+                                    pos.y += (spd.vy * time/1000);
                                 }
                             }
                             else if (dir == "D")
                             {
-                                if (pos.y + spd.vy * time >= greater_r2_y)
+                                if (pos.y + spd.vy * time/1000 >= greater_r2_y)
                                 {
                                     pos.y = greater_r2_y;
+                                    d.SetSpeed(0.0, 0.0);
                                 }
                                 else
                                 {
-                                    pos.y += (spd.vy * time);
+                                    pos.y += (spd.vy * time/1000);
                                 }
                             }
 
@@ -469,24 +473,26 @@ public:
                         double lower_bound = r1_st.y + 0.4;
                         if (dir == "U")
                         {
-                            if (pos.y + spd.vy * time <= upper_bound)
+                            if (pos.y + spd.vy * time/1000 <= upper_bound)
                             {
                                 pos.y = upper_bound;
+                                d.SetSpeed(0.0, 0.0);
                             }
                             else
                             {
-                                pos.y += (spd.vy * time);
+                                pos.y += (spd.vy * time/1000);
                             }
                         }
                         else
                         {
-                            if (pos.y + spd.vy * time >= lower_bound)
+                            if (pos.y + spd.vy * time/1000 >= lower_bound)
                             {
                                 pos.y = lower_bound;
+                                d.SetSpeed(0.0, 0.0);
                             }
                             else
                             {
-                                pos.y += (spd.vy * time);
+                                pos.y += (spd.vy * time/1000);
                             }
                         }
                     }
@@ -504,24 +510,26 @@ public:
                 double greater_r2_y = (r2_st.y > r2_fn.y ? r2_st.y : r2_fn.y) + 0.4;
                 if (dir == "U")
                 {
-                    if (pos.y + spd.vy * time <= lesser_r2_y)
+                    if (pos.y + spd.vy * time/1000 <= lesser_r2_y)
                     {
                         pos.y = lesser_r2_y;
+                        d.SetSpeed(0.0, 0.0);
                     }
                     else
                     {
-                        pos.y += (spd.vy * time);
+                        pos.y += (spd.vy * time/1000);
                     }
                 }
                 else if (dir == "D")
                 {
-                    if (pos.y + spd.vy * time >= greater_r2_y)
+                    if (pos.y + spd.vy * time/1000 >= greater_r2_y)
                     {
                         pos.y = greater_r2_y;
+                        d.SetSpeed(0.0, 0.0);
                     }
                     else
                     {
-                        pos.y += (spd.vy * time);
+                        pos.y += (spd.vy * time/1000);
                     }
                 }
                 else if (dir == "L" || dir == "R")
@@ -556,24 +564,26 @@ public:
                             double greater_r1_x = (r1_st.x > r1_fn.x ? r1_st.x : r1_fn.x) + 0.4;
                             if (dir == "L")
                             {
-                                if (pos.x + spd.vx * time <= lesser_r1_x)
+                                if (pos.x + spd.vx * time/1000 <= lesser_r1_x)
                                 {
                                     pos.x = lesser_r1_x;
+                                    d.SetSpeed(0.0, 0.0);
                                 }
                                 else
                                 {
-                                    pos.x += (spd.vx * time);
+                                    pos.x += (spd.vx * time/1000);
                                 }
                             }
                             else if (dir == "R")
                             {
-                                if (pos.x + spd.vx * time >= greater_r1_x)
+                                if (pos.x + spd.vx * time/1000 >= greater_r1_x)
                                 {
                                     pos.x = greater_r1_x;
+                                    d.SetSpeed(0.0, 0.0);
                                 }
                                 else
                                 {
-                                    pos.x += (spd.vx * time);
+                                    pos.x += (spd.vx * time/1000);
                                 }
                             }
 
@@ -587,24 +597,24 @@ public:
                         double right_bound = r2_st.x + 0.4;
                         if (dir == "L")
                         {
-                            if (pos.x + spd.vx * time <= left_bound)
+                            if (pos.x + spd.vx * time/1000 <= left_bound)
                             {
                                 pos.x = left_bound;
                             }
                             else
                             {
-                                pos.x += (spd.vx * time);
+                                pos.x += (spd.vx * time/1000);
                             }
                         }
                         else
                         {
-                            if (pos.x + spd.vx * time >= right_bound)
+                            if (pos.x + spd.vx * time/1000 >= right_bound)
                             {
                                 pos.x = right_bound;
                             }
                             else
                             {
-                                pos.x += (spd.vx * time);
+                                pos.x += (spd.vx * time/1000);
                             }
                         }
                     }

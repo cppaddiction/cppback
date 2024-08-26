@@ -42,6 +42,28 @@ namespace app {
             dog_.SetSpeed(vxx, vyy);
             (session_->FindDog(dog_.GetName(), dog_.GetId())).SetSpeed(vxx, vyy);
         }
+        void SetSpeed(std::string dir, double game_default_speed) {
+            if (dir == "U")
+            {
+                SetSpeed(0, -1, game_default_speed);
+            }
+            else if (dir == "D")
+            {
+                SetSpeed(0, 1, game_default_speed);
+            }
+            else if (dir == "L")
+            {
+                SetSpeed(-1, 0, game_default_speed);
+            }
+            else if (dir == "R")
+            {
+                SetSpeed(1, 0, game_default_speed);
+            }
+            else
+            {
+                SetSpeed(0, 0, game_default_speed);
+            }
+        }
         void SyncronizeSession() {
             dog_ = (session_->FindDog(dog_.GetName(), dog_.GetId()));
         }
