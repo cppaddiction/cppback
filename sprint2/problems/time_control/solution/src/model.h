@@ -108,8 +108,8 @@ struct RoadHasher {
 
 class Building {
 public:
-    /*Р Р°Р·РІРµ СЌС‚Рѕ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ Р±РµР· РїР°СЂР°РјРµС‚СЂРѕРІ? Rectangle bounds Р¶Рµ РїРµСЂРµРґР°С‘С‚СЃСЏ.
-    РќРѕ РІ Р»СЋР±РѕРј СЃР»СѓС‡Р°Рµ РєРѕРґ РІ СЌС‚РѕРј С„Р°Р№Р»Рµ - РєРѕРґ РёРіСЂРѕРІРѕР№ РјРѕРґРµР»Рё, РІР·СЏС‚С‹Р№ С†РµР»РёРєРѕРј РёР· СѓС‡РµР±РЅРёРєР°, С‚Р°Рє С‡С‚Рѕ РЅРµ РґСѓРјР°СЋ, С‡С‚Рѕ СЌС‚Рѕ РєСЂРёС‚РёС‡РЅРѕ.*/
+    /*Разве это конструктор без параметров? Rectangle bounds же передаётся.
+    Но в любом случае код в этом файле - код игровой модели, взятый целиком из учебника, так что не думаю, что это критично.*/
     explicit Building(Rectangle bounds) noexcept
         : bounds_{bounds} {
     }
@@ -558,8 +558,8 @@ public:
 
                             const auto& crossed_road = d.GetRoad();
 
-                            auto r1_st = current_road.GetStart();
-                            auto r1_fn = current_road.GetEnd();
+                            auto r1_st = crossed_road.GetStart();
+                            auto r1_fn = crossed_road.GetEnd();
                             double lesser_r1_x = (r1_st.x < r1_fn.x ? r1_st.x : r1_fn.x) - 0.4;
                             double greater_r1_x = (r1_st.x > r1_fn.x ? r1_st.x : r1_fn.x) + 0.4;
                             if (dir == "L")
