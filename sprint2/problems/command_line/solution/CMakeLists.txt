@@ -16,6 +16,8 @@ find_package(Threads REQUIRED)
 
 add_executable(game_server
 	src/main.cpp
+	src/app.h
+	src/app.cpp
 	src/http_server.cpp
 	src/http_server.h
 	src/sdk.h
