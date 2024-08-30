@@ -58,6 +58,6 @@ stop(record)
 #flamegraph_command = 'sudo perf script -i perf.data | ./FlameGraph/stackcollapse-perf.pl | ./FlameGraph/flamegraph.pl > graph.svg'
 #flamegraph = run(flamegraph_command)
 #stop(flamegraph)
+time.sleep(5)
 os.system('sudo perf script -i perf.data | ./FlameGraph/stackcollapse-perf.pl | ./FlameGraph/flamegraph.pl > graph.svg')
-time.sleep(1)
 print('Job done')
