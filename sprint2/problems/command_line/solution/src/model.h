@@ -106,10 +106,10 @@ struct RoadHasher {
     }
 };
 
+std::optional<Point> IsIntersect(const Road& r1, const Road& r2);
+
 class Building {
 public:
-    /*–азве это конструктор без параметров? Rectangle bounds же передаЄтс€.
-    Ќо в любом случае код в этом файле - код игровой модели, вз€тый целиком из учебника, так что не думаю, что это критично.*/
     explicit Building(Rectangle bounds) noexcept
         : bounds_{bounds} {
     }
@@ -200,81 +200,9 @@ public:
         return specific_map_dog_speed_;
     }
 
-    std::pair<const Road*, Position> GetRandomPosition(bool randomize_spawn_points) const {
-        const auto& roads = GetRoads();
-        if (randomize_spawn_points)
-        {
-            std::random_device rd;
-            std::uniform_int_distribution<int> dist_int(0, roads.size() - 1);
-            const auto& road = roads[dist_int(rd)];
-            auto road_start = road.GetStart(); auto road_end = road.GetEnd();
-            int start, end; start = road.IsHorizontal() ? road_start.x : road_start.y; end = road.IsHorizontal() ? road_end.x : road_end.y;
-            std::uniform_real_distribution<> dist_double(start, end);
-            auto value = std::round(dist_double(rd) * 10) / 10;
-            return std::make_pair(&road, road.IsHorizontal() ? Position{ value, static_cast<double>(road_start.y) } : Position{ static_cast<double>(road_start.x), value });
-            //return std::make_pair(&road, road.IsHorizontal() ? Position{value, std::round(static_cast<double>(road_start.y) * 10) / 10} : Position{std::round(static_cast<double>(road_start.x) * 10) / 10, value});
-        }
-        else
-        {
-            auto temp = roads[0].GetStart();
-            return std::make_pair(&roads[0], Position{ static_cast<double>(temp.x), static_cast<double>(temp.y) });
-        }
-        
-    }
+    std::pair<const Road*, Position> GetRandomPosition(bool randomize_spawn_points) const;
 
-    void CreateRoadGrid() {
-        for (int i = 0; i < roads_.size(); i++)
-        {
-            for (int j = 0; j < roads_.size(); j++)
-            {
-                if (i != j)
-                {
-                    if (auto p = IsIntersect(roads_[i], roads_[j]))
-                    {
-                        grid_.try_emplace(*p, roads_[i], roads_[j]);
-                        auto& vi = roads_to_crosses_[roads_[i]];
-                        auto& vj = roads_to_crosses_[roads_[j]];
-                        vi.push_back(*p);
-                        vj.push_back(*p);
-                    }
-                }
-            }
-        }
-    }
-
-    std::optional<Point> IsIntersect(const Road& r1, const Road& r2) const {
-        if (r1.IsHorizontal() && r2.IsVertical())
-        {
-            auto r1_st = r1.GetStart();
-            auto r1_fn = r1.GetEnd();
-            auto r2_st = r2.GetStart();
-            auto r2_fn = r2.GetEnd();
-            auto lesser_r1_x = r1_st.x < r1_fn.x ? r1_st.x : r1_fn.x;
-            auto greater_r1_x = r1_st.x > r1_fn.x ? r1_st.x : r1_fn.x;
-            auto lesser_r2_y = r2_st.y < r2_fn.y ? r2_st.y : r2_fn.y;
-            auto greater_r2_y = r2_st.y > r2_fn.y ? r2_st.y : r2_fn.y;
-            if (lesser_r1_x <= r2_st.x && r2_st.x <= greater_r1_x && lesser_r2_y <= r1_st.y && r1_st.y <= greater_r2_y)
-            {
-                return Point{ r2_st.x, r1_st.y };
-            }
-        }
-        if (r1.IsVertical() && r2.IsHorizontal())
-        {
-            auto r1_st = r2.GetStart();
-            auto r1_fn = r2.GetEnd();
-            auto r2_st = r1.GetStart();
-            auto r2_fn = r1.GetEnd();
-            auto lesser_r1_x = r1_st.x < r1_fn.x ? r1_st.x : r1_fn.x;
-            auto greater_r1_x = r1_st.x > r1_fn.x ? r1_st.x : r1_fn.x;
-            auto lesser_r2_y = r2_st.y < r2_fn.y ? r2_st.y : r2_fn.y;
-            auto greater_r2_y = r2_st.y > r2_fn.y ? r2_st.y : r2_fn.y;
-            if (lesser_r1_x <= r2_st.x && r2_st.x <= greater_r1_x && lesser_r2_y <= r1_st.y && r1_st.y <= greater_r2_y)
-            {
-                return Point{ r2_st.x, r1_st.y };
-            }
-        }
-        return std::nullopt;
-    }
+    void CreateRoadGrid();
 
     const std::vector<Point>& GetRoadCrossses(const Road& road) const {
         return roads_to_crosses_.at(road);
@@ -351,10 +279,10 @@ public:
     const Road& GetRoad() const { return *r_; }
     void SetRoad(const Road* r) { r_ = r; }
 private:
-    std::string name_="";
-    std::uint64_t id_=0;
+    std::string name_ = "";
+    std::uint64_t id_ = 0;
     Position pos_;
-    const Road* r_=nullptr;
+    const Road* r_ = nullptr;
     Speed spd_;
     std::string dir_ = "U";
 };
@@ -362,285 +290,16 @@ private:
 
 class GameSession {
 public:
-    GameSession(const Map* map, std::uint64_t id) : map_(map), id_(id) {}
-    void AddDog(Dog d) { dogs_.push_back(d); }
-    Dog& FindDog(std::string name, std::uint64_t id) {
-        Dog temp(name, id);
-        if (auto search = std::find(dogs_.begin(), dogs_.end(), temp); search != dogs_.end())
-        {
-            return dogs_[static_cast<int>(std::distance(dogs_.begin(), search))];
-        }
-        else
-        {
-            throw std::logic_error("No such dog");
-        }
-    }
-    void UpdateSession(std::uint64_t time) {
-        //movement implementation
-
-        const auto& m = GetMap();
-        for (auto& d : dogs_)
-        {
-            auto pos = d.GetPos();
-            auto spd = d.GetSpd();
-            auto dir = d.GetDir();
-            const auto& current_road = d.GetRoad();
-
-            if (current_road.IsHorizontal())
-            {
-                auto r1_st = current_road.GetStart();
-                auto r1_fn = current_road.GetEnd();
-                double lesser_r1_x = (r1_st.x < r1_fn.x ? r1_st.x : r1_fn.x) - 0.4;
-                double greater_r1_x = (r1_st.x > r1_fn.x ? r1_st.x : r1_fn.x) + 0.4;
-                if (dir == "L")
-                {
-                    if (pos.x + spd.vx * time/1000 <= lesser_r1_x)
-                    {
-                        pos.x = lesser_r1_x;
-                        d.SetSpeed(0.0, 0.0);
-                    }
-                    else
-                    {
-                        pos.x += (spd.vx * time/1000);
-                    }
-                }
-                else if (dir == "R")
-                {
-                    if (pos.x + spd.vx * time/1000 >= greater_r1_x)
-                    {
-                        pos.x = greater_r1_x;
-                        d.SetSpeed(0.0, 0.0);
-                    }
-                    else
-                    {
-                        pos.x += (spd.vx * time/1000);
-                    }
-                }
-                else if (dir == "U" || dir == "D")
-                {
-                    bool in_cross = false;
-                    const auto& road_crosses = m.GetRoadCrossses(current_road);
-                    for (const auto& cross : road_crosses)
-                    {
-                        double lb_x = cross.x - 0.4;
-                        double rb_x = cross.x + 0.4;
-                        double lb_y = cross.y - 0.4;
-                        double rb_y = cross.y + 0.4;
-                        if (lb_x <= pos.x && pos.x <= rb_x && lb_y <= pos.y && pos.y <= rb_y)
-                        {
-                            const auto& crossed_roads = m.GetNeighbourRoad(cross);
-                            const Road* r1 = &crossed_roads.first;
-                            const Road* r2 = &crossed_roads.second;
-                            if (current_road == crossed_roads.first)
-                            {
-                                d.SetRoad(r2);
-                            }
-                            else
-                            {
-                                d.SetRoad(r1);
-                            }
-
-                            const auto& crossed_road = d.GetRoad();
-
-                            auto r2_st = crossed_road.GetStart();
-                            auto r2_fn = crossed_road.GetEnd();
-                            double lesser_r2_y = (r2_st.y < r2_fn.y ? r2_st.y : r2_fn.y) - 0.4;
-                            double greater_r2_y = (r2_st.y > r2_fn.y ? r2_st.y : r2_fn.y) + 0.4;
-                            if (dir == "U")
-                            {
-                                if (pos.y + spd.vy * time/1000 <= lesser_r2_y)
-                                {
-                                    pos.y = lesser_r2_y;
-                                    d.SetSpeed(0.0, 0.0);
-                                }
-                                else
-                                {
-                                    pos.y += (spd.vy * time/1000);
-                                }
-                            }
-                            else if (dir == "D")
-                            {
-                                if (pos.y + spd.vy * time/1000 >= greater_r2_y)
-                                {
-                                    pos.y = greater_r2_y;
-                                    d.SetSpeed(0.0, 0.0);
-                                }
-                                else
-                                {
-                                    pos.y += (spd.vy * time/1000);
-                                }
-                            }
-
-                            in_cross = true;
-                            break;
-                        }
-                    }
-                    if (!in_cross)
-                    {
-                        double upper_bound = r1_st.y - 0.4;
-                        double lower_bound = r1_st.y + 0.4;
-                        if (dir == "U")
-                        {
-                            if (pos.y + spd.vy * time/1000 <= upper_bound)
-                            {
-                                pos.y = upper_bound;
-                                d.SetSpeed(0.0, 0.0);
-                            }
-                            else
-                            {
-                                pos.y += (spd.vy * time/1000);
-                            }
-                        }
-                        else
-                        {
-                            if (pos.y + spd.vy * time/1000 >= lower_bound)
-                            {
-                                pos.y = lower_bound;
-                                d.SetSpeed(0.0, 0.0);
-                            }
-                            else
-                            {
-                                pos.y += (spd.vy * time/1000);
-                            }
-                        }
-                    }
-                }
-                else
-                {
-
-                }
-            }
-            else
-            {
-                auto r2_st = current_road.GetStart();
-                auto r2_fn = current_road.GetEnd();
-                double lesser_r2_y = (r2_st.y < r2_fn.y ? r2_st.y : r2_fn.y) - 0.4;
-                double greater_r2_y = (r2_st.y > r2_fn.y ? r2_st.y : r2_fn.y) + 0.4;
-                if (dir == "U")
-                {
-                    if (pos.y + spd.vy * time/1000 <= lesser_r2_y)
-                    {
-                        pos.y = lesser_r2_y;
-                        d.SetSpeed(0.0, 0.0);
-                    }
-                    else
-                    {
-                        pos.y += (spd.vy * time/1000);
-                    }
-                }
-                else if (dir == "D")
-                {
-                    if (pos.y + spd.vy * time/1000 >= greater_r2_y)
-                    {
-                        pos.y = greater_r2_y;
-                        d.SetSpeed(0.0, 0.0);
-                    }
-                    else
-                    {
-                        pos.y += (spd.vy * time/1000);
-                    }
-                }
-                else if (dir == "L" || dir == "R")
-                {
-                    bool in_cross = false;
-                    const auto& road_crosses = m.GetRoadCrossses(current_road);
-                    for (const auto& cross : road_crosses)
-                    {
-                        double lb_x = cross.x - 0.4;
-                        double rb_x = cross.x + 0.4;
-                        double lb_y = cross.y - 0.4;
-                        double rb_y = cross.y + 0.4;
-                        if (lb_x <= pos.x && pos.x <= rb_x && lb_y <= pos.y && pos.y <= rb_y)
-                        {
-                            const auto& crossed_roads = m.GetNeighbourRoad(cross);
-                            const Road* r1 = &crossed_roads.first;
-                            const Road* r2 = &crossed_roads.second;
-                            if (current_road == crossed_roads.first)
-                            {
-                                d.SetRoad(r2);
-                            }
-                            else
-                            {
-                                d.SetRoad(r1);
-                            }
-
-                            const auto& crossed_road = d.GetRoad();
-
-                            auto r1_st = crossed_road.GetStart();
-                            auto r1_fn = crossed_road.GetEnd();
-                            double lesser_r1_x = (r1_st.x < r1_fn.x ? r1_st.x : r1_fn.x) - 0.4;
-                            double greater_r1_x = (r1_st.x > r1_fn.x ? r1_st.x : r1_fn.x) + 0.4;
-                            if (dir == "L")
-                            {
-                                if (pos.x + spd.vx * time/1000 <= lesser_r1_x)
-                                {
-                                    pos.x = lesser_r1_x;
-                                    d.SetSpeed(0.0, 0.0);
-                                }
-                                else
-                                {
-                                    pos.x += (spd.vx * time/1000);
-                                }
-                            }
-                            else if (dir == "R")
-                            {
-                                if (pos.x + spd.vx * time/1000 >= greater_r1_x)
-                                {
-                                    pos.x = greater_r1_x;
-                                    d.SetSpeed(0.0, 0.0);
-                                }
-                                else
-                                {
-                                    pos.x += (spd.vx * time/1000);
-                                }
-                            }
-
-                            in_cross = true;
-                            break;
-                        }
-                    }
-                    if (!in_cross)
-                    {
-                        double left_bound = r2_st.x - 0.4;
-                        double right_bound = r2_st.x + 0.4;
-                        if (dir == "L")
-                        {
-                            if (pos.x + spd.vx * time/1000 <= left_bound)
-                            {
-                                pos.x = left_bound;
-                                d.SetSpeed(0.0, 0.0);
-                            }
-                            else
-                            {
-                                pos.x += (spd.vx * time/1000);
-                            }
-                        }
-                        else
-                        {
-                            if (pos.x + spd.vx * time/1000 >= right_bound)
-                            {
-                                pos.x = right_bound;
-                                d.SetSpeed(0.0, 0.0);
-                            }
-                            else
-                            {
-                                pos.x += (spd.vx * time/1000);
-                            }
-                        }
-                    }
-                }
-                else
-                {
-
-                }
-            }
-            d.Move(pos);
-        }
-    }
-    const Map& GetMap() const { return *map_; }
-    std::uint64_t GetId() const { return id_; }
-    const std::vector<Dog>& GetDogs() const { return dogs_; }
-    std::uint64_t GetPlayersAmount() const { return dogs_.size(); }
+    GameSession(const Map* map, std::uint64_t id);
+    void AddDog(Dog d);
+    Dog& FindDog(std::string name, std::uint64_t id);
+    void UpdateSession(std::uint64_t time);
+    const Map& GetMap() const;
+    std::uint64_t GetId() const;
+    const std::vector<Dog>& GetDogs() const;
+    std::uint64_t GetPlayersAmount() const;
+    void ProcessHorizontalRoad(model::Dog& d, const model::Road current_road, model::Position& pos, const model::Speed spd, const std::string& dir, double time_sec, const model::Map& m);
+    void ProcessVerticalRoad(model::Dog& d, const model::Road current_road, model::Position& pos, const model::Speed spd, const std::string& dir, double time_sec, const model::Map& m);
 private:
     const Map* map_;
     std::uint64_t id_;
@@ -649,29 +308,9 @@ private:
 
 class SessionManager {
 public:
-    SessionManager(const std::vector<Map>& maps)
-    {
-        for (const auto& map : maps)
-        {
-            active_sessions_.emplace_back(std::make_shared<GameSession>(&map, 0));
-        }
-    }
-    std::shared_ptr<GameSession> FindSession(const Map* m, uint64_t session_id) const
-    {
-        for (auto session : active_sessions_)
-        {
-            if (m->GetId() == (session->GetMap()).GetId() && session_id == session->GetId())
-            {
-                return session;
-            }
-        }
-    }
-    void UpdateAllSessions(std::uint64_t time) const {
-        for (auto session_p : active_sessions_)
-        {
-            session_p->UpdateSession(time);
-        }
-    }
+    SessionManager(const std::vector<Map>& maps);
+    std::shared_ptr<GameSession> FindSession(const Map* m, uint64_t session_id) const;
+    void UpdateAllSessions(std::uint64_t time) const;
 private:
     std::vector<std::shared_ptr<GameSession>> active_sessions_;
 };

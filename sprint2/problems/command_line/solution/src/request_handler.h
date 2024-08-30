@@ -1,5 +1,6 @@
 #pragma once
 #include <filesystem>
+#include <sstream>
 #include <variant>
 #include "model.h"
 #include "json.h"
@@ -11,6 +12,8 @@
 #include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 #include <boost/json.hpp>
 #include "app.h"
 
@@ -185,7 +188,7 @@ namespace http_handler {
 
         std::string GetMaps(json::Builder& builder, const model::Game& gm) const;
         std::string GetMapWithSpecificId(json::Builder& builder, const model::Map* m) const;
-        std::string BadRequest(json::Builder& builder) const;
+        std::string BadRequest() const;
         std::string MapNotFound(json::Builder& builder) const;
         json::Array CollectRoads(const model::Map* m) const;
         json::Array CollectBuildings(const model::Map* m) const;
@@ -196,7 +199,7 @@ namespace http_handler {
         std::string urlDecode(const std::string& SRC) const;
 
         std::string InvalidMethod(json::Builder& builder, const std::string& msg) const;
-        std::string BadRequest(json::Builder& builder, const std::string& code, const std::string& msg) const;
+        std::string BadRequest(const std::string& code, const std::string& msg) const;
         std::string AuthRequest(json::Builder& builder, const std::string& auth_token, int player_id) const;
         bool IsValid(const std::string& auth_token) const;
         std::string AuthFailed(json::Builder& builder) const;
@@ -375,7 +378,7 @@ namespace http_handler {
 
         std::variant<FileResponse, FileResponseErrors> MakeFileResponse(fs::path path) const;
 
-        std::string BadRequest(json::Builder& builder) const;
+        std::string BadRequest() const;
         std::string FileNotFound(json::Builder& builder) const;
         std::variant<RequestHandler::StringResponse, RequestHandler::FileResponse> HandleRequest(StringRequest&& req, const model::Game& gm) const;
         RequestHandler::StringResponse HandleApiRequest(StringRequest&& req, const model::Game& gm) const;

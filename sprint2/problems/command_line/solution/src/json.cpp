@@ -16,14 +16,14 @@ struct NodePrinter {
     }
 
     void operator() (Array x) const {
-        bool is_first=true;
+        bool is_first = true;
         out<<'[';
         for(const auto& item: x)
         {
             if(is_first)
             {
                 PrintNode(item, out);
-                is_first=false;
+                is_first = false;
             }
             else
             {
@@ -36,15 +36,15 @@ struct NodePrinter {
 
     void operator() ([[maybe_unused]] Dict x) const {
 
-        bool is_first=true;
+        bool is_first = true;
         out<<'{';
-        for(auto it=x.begin(); it!=x.end(); it++)
+        for(auto it = x.begin(); it != x.end(); it++)
         {
             if(is_first)
             {
                 out<<"\""<<it->first<<"\""<<':';
                 PrintNode(it->second, out);
-                is_first=false;
+                is_first = false;
             }
             else
             {
@@ -160,15 +160,11 @@ Number Load_Number(std::istream& input) {
 
     try {
         if (is_int) {
-            try {
-                return std::stoi(parsed_num);
-            }
-            catch (...) {
-            }
+            return std::stoi(parsed_num);
         }
         return std::stod(parsed_num);
     }
-    catch (...) {
+    catch (const std::invalid_argument& ex) {
         throw ParsingError("Failed to convert "s + parsed_num + " to number"s);
     }
 }

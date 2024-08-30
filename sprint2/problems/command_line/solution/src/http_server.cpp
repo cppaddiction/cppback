@@ -42,7 +42,8 @@ namespace http_server {
         if (ec) {
             std::stringstream temp; temp << ec.message();
             auto tick = boost::posix_time::microsec_clock::local_time();
-            boost::json::value custom_data{ {"message", "error"}, {"timestamp", to_iso_extended_string(tick)}, {"data", boost::json::value{{"code", ec.value()}, {"text", temp.str()}, {"where", "read"}}} };
+            boost::json::value custom_data{ {"message", "error"}, {"timestamp", to_iso_extended_string(tick)},
+                {"data", boost::json::value{{"code", ec.value()}, {"text", temp.str()}, {"where", "read"}}} };
             BOOST_LOG_TRIVIAL(info) << logging::add_value(additional_data, custom_data);
             return;
             //return ReportError(ec, "read"sv);
@@ -54,7 +55,8 @@ namespace http_server {
         if (ec) {
             std::stringstream temp; temp << ec.message();
             auto tick = boost::posix_time::microsec_clock::local_time();
-            boost::json::value custom_data{ {"message", "error"}, {"timestamp", to_iso_extended_string(tick)}, {"data", boost::json::value{{"code", ec.value()}, {"text", temp.str()}, {"where", "write"}}} };
+            boost::json::value custom_data{ {"message", "error"}, {"timestamp", to_iso_extended_string(tick)},
+                {"data", boost::json::value{{"code", ec.value()}, {"text", temp.str()}, {"where", "write"}}} };
             BOOST_LOG_TRIVIAL(info) << logging::add_value(additional_data, custom_data);
             return;
             //return ReportError(ec, "write"sv);

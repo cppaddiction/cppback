@@ -139,10 +139,14 @@ namespace http_handler {
         return true;
     }
 
-    std::string RequestHandler::BadRequest(json::Builder& builder) const
+    std::string RequestHandler::BadRequest() const
     {
-        builder.StartDict().Key(CODE).Value(BAD_REQUEST_CODE).Key(MESSAGE).Value(BAD_REQUEST_MESSAGE);
-        return json::Print(builder.EndDict().Build());
+        boost::property_tree::ptree pt;
+        pt.put(CODE, BAD_REQUEST_CODE);
+        pt.put(MESSAGE, BAD_REQUEST_MESSAGE);
+        std::ostringstream strm;
+        boost::property_tree::json_parser::write_json(strm, pt);
+        return strm.str();
     }
 
     std::string RequestHandler::FileNotFound(json::Builder& builder) const
@@ -163,7 +167,7 @@ namespace http_handler {
         int i, ii;
         for (i = 0; i < SRC.length(); i++) {
             if (SRC[i] == '%') {
-                sscanf(SRC.substr(i + 1, 2).c_str(), "%x", &ii);
+                std::istringstream strm(SRC.substr(i + 1, 2)); strm >> std::hex >> ii;
                 ch = static_cast<char>(ii);
                 ret += ch;
                 i = i + 2;
@@ -203,19 +207,17 @@ namespace http_handler {
             {
                 fs::path request_path{ str_form };
                 auto response = file_response(request_path);
-                try {
+                if (std::holds_alternative<FileResponse>(response))
+                {
                     auto response_value = std::move(get<FileResponse>(response));
                     return response_value;
                 }
-                catch (...)
+                else if (std::holds_alternative<FileResponseErrors>(response))
                 {
-
-                }
-                try {
                     auto response_value = get<FileResponseErrors>(response);
                     if (response_value == FileResponseErrors::SUB_PATH_FAIL)
                     {
-                        auto result = BadRequest(builder);
+                        auto result = BadRequest();
                         return text_response(http::status::bad_request, result, result.size(), ContentType::JSON);
                     }
                     else
@@ -224,12 +226,11 @@ namespace http_handler {
                         return text_response(http::status::not_found, result, result.size(), ContentType::TEXT);
                     }
                 }
-                catch (...)
+                else
                 {
-
+                    auto result = BadRequest();
+                    return text_response(http::status::bad_request, result, result.size(), ContentType::JSON);
                 }
-                auto result = BadRequest(builder);
-                return text_response(http::status::bad_request, result, result.size(), ContentType::JSON);
             }
         }
         else
@@ -248,7 +249,7 @@ namespace http_handler {
     bool ApiHandler::IsApiRequest(StringRequest request) const
     {
         auto str_form = urlDecode(static_cast<std::string>(request.target()));
-        return str_form.substr(0, 4) == API ? true : false;
+        return str_form.substr(0, 4) == API;
     }
 
     ApiHandler::StringResponse ApiHandler::MakeStringResponse(http::status status, std::string_view body, int x, unsigned http_version,
@@ -323,10 +324,14 @@ namespace http_handler {
         return json::Print(builder.EndDict().Build());
     }
 
-    std::string ApiHandler::BadRequest(json::Builder& builder) const
+    std::string ApiHandler::BadRequest() const
     {
-        builder.StartDict().Key(CODE).Value(BAD_REQUEST_CODE).Key(MESSAGE).Value(BAD_REQUEST_MESSAGE);
-        return json::Print(builder.EndDict().Build());
+        boost::property_tree::ptree pt;
+        pt.put(CODE, BAD_REQUEST_CODE);
+        pt.put(MESSAGE, BAD_REQUEST_MESSAGE);
+        std::ostringstream strm;
+        boost::property_tree::json_parser::write_json(strm, pt);
+        return strm.str();
     }
 
     std::string ApiHandler::MapNotFound(json::Builder& builder) const
@@ -341,10 +346,14 @@ namespace http_handler {
         return json::Print(builder.EndDict().Build());
     }
 
-    std::string ApiHandler::BadRequest(json::Builder& builder, const std::string& code, const std::string& msg) const
+    std::string ApiHandler::BadRequest(const std::string& code, const std::string& msg) const
     {
-        builder.StartDict().Key(CODE).Value(code).Key(MESSAGE).Value(msg);
-        return json::Print(builder.EndDict().Build());
+        boost::property_tree::ptree pt;
+        pt.put(CODE, code);
+        pt.put(MESSAGE, msg);
+        std::ostringstream strm;
+        boost::property_tree::json_parser::write_json(strm, pt);
+        return strm.str();
     }
 
     std::string ApiHandler::AuthRequest(json::Builder& builder, const std::string& auth_token, int player_id) const
@@ -533,7 +542,7 @@ namespace http_handler {
                     auto user_name = static_cast<std::string>(value.at(USER_NAME).as_string());
                     if (user_name == "")
                     {
-                        auto result = BadRequest(builder, INVALID_ARGUEMENT, INVALID_NAME);
+                        auto result = BadRequest(INVALID_ARGUEMENT, INVALID_NAME);
                         return text_cache_response(http::status::bad_request, result, result.size(), Cache::NO_CACHE);
                     }
                     auto map_id = static_cast<std::string>(value.at(MAP_ID).as_string());
@@ -554,7 +563,7 @@ namespace http_handler {
                 }
                 catch (...)
                 {
-                    auto result = BadRequest(builder, INVALID_ARGUEMENT, JOIN_GAME_PARSE_ERROR);
+                    auto result = BadRequest(INVALID_ARGUEMENT, JOIN_GAME_PARSE_ERROR);
                     return text_cache_response(http::status::bad_request, result, result.size(), Cache::NO_CACHE);
                 }
             }
@@ -708,7 +717,7 @@ namespace http_handler {
                     }
                     catch (...)
                     {
-                        auto result = BadRequest(builder, INVALID_ARGUEMENT, GAME_ACTION_PARSE_ERROR_OR_CONTENT_TYPE_ERROR);
+                        auto result = BadRequest(INVALID_ARGUEMENT, GAME_ACTION_PARSE_ERROR_OR_CONTENT_TYPE_ERROR);
                         return text_cache_response(http::status::bad_request, result, result.size(), Cache::NO_CACHE);
                     }
                 }
@@ -728,7 +737,7 @@ namespace http_handler {
         {
             if (tick_period_)
             {
-                auto result = BadRequest(builder, BAD_REQUEST_CODE, INVALID_ENDPOINT);
+                auto result = BadRequest(BAD_REQUEST_CODE, INVALID_ENDPOINT);
                 return text_cache_response(http::status::bad_request, result, result.size(), Cache::NO_CACHE);
             }
             if (req.method() == http::verb::post)
@@ -760,7 +769,7 @@ namespace http_handler {
                 }
                 catch (...)
                 {
-                    auto result = BadRequest(builder, INVALID_ARGUEMENT, GAME_TICK_PARSE_ERROR_OR_CONTENT_TYPE_ERROR);
+                    auto result = BadRequest(INVALID_ARGUEMENT, GAME_TICK_PARSE_ERROR_OR_CONTENT_TYPE_ERROR);
                     return text_cache_response(http::status::bad_request, result, result.size(), Cache::NO_CACHE);
                 }
             }
@@ -772,7 +781,7 @@ namespace http_handler {
         }
         else
         {
-            auto result = BadRequest(builder);
+            auto result = BadRequest();
             return text_response(http::status::bad_request, result, result.size());
         }
         //                                                   ,                        : Hello
@@ -789,7 +798,7 @@ namespace http_handler {
         int i, ii;
         for (i = 0; i < SRC.length(); i++) {
             if (SRC[i] == '%') {
-                sscanf(SRC.substr(i + 1, 2).c_str(), "%x", &ii);
+                std::istringstream strm(SRC.substr(i + 1, 2)); strm >> std::hex >> ii;
                 ch = static_cast<char>(ii);
                 ret += ch;
                 i = i + 2;
@@ -802,3 +811,32 @@ namespace http_handler {
     }
 }  // namespace http_handler
 
+/*
+
+
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
+#include <iostream>
+#include <string>
+#include <sstream>
+
+namespace pt = boost::property_tree;
+
+int main(int argc, char* argv[]) {
+    boost::property_tree::ptree pt;
+    boost::property_tree::ptree ptt;
+    pt.put("Test", "string");
+    pt.put("Test2.inner0", "string2");
+    pt.put("Test2.inner1", "string3");
+    int x = 1234;
+    ptt.put_value(x);
+    pt.push_back(std::make_pair("Test2.inner2", ptt));
+
+    std::ostringstream ss;
+    boost::property_tree::json_parser::write_json(ss, pt);
+
+    std::cout << ss.str() << std::endl;
+
+    return 0;
+}
+*/

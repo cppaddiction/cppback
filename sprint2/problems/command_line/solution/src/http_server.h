@@ -82,7 +82,7 @@ namespace http_server {
     class Session : public SessionBase, public std::enable_shared_from_this<Session<RequestHandler>> {
     public:
         template <typename Handler>
-        Session(tcp::socket&& socket, Handler&& request_handler, std::string client_ip)
+        Session(tcp::socket&& socket, Handler&& request_handler, const std::string& client_ip)
             : SessionBase(std::move(socket))
             , request_handler_(std::forward<Handler>(request_handler)), client_ip_(client_ip) {
         }
@@ -155,7 +155,8 @@ namespace http_server {
             if (ec) {
                 std::stringstream temp; temp << ec.message();
                 auto tick = boost::posix_time::microsec_clock::local_time();
-                boost::json::value custom_data{ {"message", "error"}, {"timestamp", to_iso_extended_string(tick)}, {"data", boost::json::value{{"code", ec.value()}, {"text", temp.str()}, {"where", "accept"}}} };
+                boost::json::value custom_data{ {"message", "error"}, {"timestamp", to_iso_extended_string(tick)},
+                    {"data", boost::json::value{{"code", ec.value()}, {"text", temp.str()}, {"where", "accept"}}} };
                 BOOST_LOG_TRIVIAL(info) << logging::add_value(additional_data, custom_data);
                 return;
                 //return ReportError(ec, "accept"sv);
