@@ -54,6 +54,7 @@ record = run(record_command)
 make_shots()
 stop(server)
 stop(record)
+
 #flamegraph_command = 'sudo perf script -i perf.data | ./FlameGraph/stackcollapse-perf.pl | ./FlameGraph/flamegraph.pl > graph.svg'
 #flamegraph = run(flamegraph_command)
 #stop(flamegraph)
