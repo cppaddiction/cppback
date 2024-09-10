@@ -122,6 +122,14 @@ jobs:
         with:
           submodules: true
 
+      - name: run tests sprint3 stress
+        run: |
+          cd sprint3/problems/stress/solution
+          yandex-tank -c ${GITHUB_WORKSPACE}/sprint3/problems/stress/solution/load.yaml ${GITHUB_WORKSPACE}/sprint3/problems/stress/solution/ammo.txt
+          pytest --junitxml=${GITHUB_WORKSPACE}/stress.xml ${GITHUB_WORKSPACE}/cpp-backend-tests-practicum/tests/test_s03_stress.py
+        env:
+          DIRECTORY: ${{ github.workspace }}/sprint3/problems/stress/solution/logs
+
       - name: run tests sprint3 ammo
         run: |
           cd cpp-backend-tests-practicum/scripts/sprint3
@@ -131,14 +139,6 @@ jobs:
         run: |
           cd cpp-backend-tests-practicum/scripts/sprint3
           ./load/run_ci.sh
-
-      - name: run tests sprint3 stress
-        run: |
-          cd sprint3/problems/stress/solution
-          yandex-tank -c ${GITHUB_WORKSPACE}/sprint3/problems/stress/solution/load.yaml ${GITHUB_WORKSPACE}/sprint3/problems/stress/solution/ammo.txt
-          pytest --junitxml=${GITHUB_WORKSPACE}/stress.xml ${GITHUB_WORKSPACE}/cpp-backend-tests-practicum/tests/test_s03_stress.py
-        env:
-          DIRECTORY: ${{ github.workspace }}/sprint3/problems/stress/solution/logs
 
       - name: Publish XML reports
         uses: EnricoMi/publish-unit-test-result-action@v2
