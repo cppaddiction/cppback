@@ -521,7 +521,7 @@ namespace http_handler {
         }
         else if (str_form.substr(0, 13) == MAPS_PATH_WITH_SLASH && str_form != MAPS_PATH_WITH_SLASH)
         {
-            if (req.method() == http::verb::get)
+            if (req.method() == http::verb::get || req.method() == http::verb::head)
             {
                 auto id = str_form.substr(13);
                 if (id[id.size() - 1] == '/')
@@ -541,8 +541,8 @@ namespace http_handler {
             }
             else
             {
-                auto result = InvalidMethod(builder, GET);
-                return text_invalid_cache_response(http::status::method_not_allowed, result, result.size(), Allow::GET, Cache::NO_CACHE);
+                auto result = InvalidMethod(builder, GET_HEAD);
+                return text_invalid_cache_response(http::status::method_not_allowed, result, result.size(), Allow::GET_HEAD, Cache::NO_CACHE);
             }
         }
         else if (str_form == JOIN_GAME_WITH_SLASH || str_form == JOIN_GAME_WITHOUT_SLASH)

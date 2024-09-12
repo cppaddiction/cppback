@@ -150,6 +150,7 @@ void GameSession::UpdateSession(std::uint64_t time, loot_gen::LootGenerator lg) 
         auto lost_obj_id = lost_obj_ids++;
         AddLostObject(lost_obj_id, LostObject{random_pos.x, random_pos.y, lost_obj_id, GetRandomNumber(different_items_to_generate_amount - 1) });
     }
+    loot_count_ += items_to_generate;
 
     const auto& m = GetMap();
     for (auto& d : dogs_)
