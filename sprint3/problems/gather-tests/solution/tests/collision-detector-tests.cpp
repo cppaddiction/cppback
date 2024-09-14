@@ -2,6 +2,7 @@
 
 #include "../src/collision_detector.h"
 #include <vector>
+#include <catch2/catch_test_macros.hpp>
 
 // Напишите здесь тесты для функции collision_detector::FindGatherEvents
 
@@ -15,7 +16,7 @@ enum class mode {
 	UR
 };
 
-class TestItemGathererProvider: public ItemGathererProvider {
+class TestItemGathererProvider: public collision_detector::ItemGathererProvider {
 public:
 	TestItemGathererProvider() {
 		items_.emplace_back(geom::Point2D{1.0, 1.0}, item_width);
@@ -76,7 +77,7 @@ struct UniversalMatcher : Catch::Matchers::MatcherGenericBase {
 		{
 			return false;
 		}
-		for (auto it = begin(other), it != end(other); it++)
+		for (auto it = begin(other); it != end(other); it++)
 		{
 			if (it->item_id < 0 || it->gatherer_id < 0 || it->sq_distance < 0 || it->time < 0)
 			{
@@ -96,6 +97,7 @@ struct UniversalMatcher : Catch::Matchers::MatcherGenericBase {
 
     std::string describe() const override {
         // Описание свойства, проверяемого матчером:
+		using namespace std::literals;
 		return "UniversalMatcher"s;
     }
 };
