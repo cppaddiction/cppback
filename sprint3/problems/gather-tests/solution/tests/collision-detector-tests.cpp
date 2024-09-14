@@ -119,7 +119,7 @@ struct SpecialMatcherOne : Catch::Matchers::MatcherGenericBase {
 		bool res1_collected = res1.IsCollected(item_width + gatherer_width);
 		bool res2_collected = res2.IsCollected(item_width + gatherer_width);
 		bool res3_collected = res3.IsCollected(item_width + gatherer_width);
-		bool res4_collected = res4.IsCollected(item.width + gatherer_width);
+		bool res4_collected = res4.IsCollected(item_width + gatherer_width);
 		if (!(res1_collected && res2_collected && res3_collected && res4_collected))
 		{
 			return false;
