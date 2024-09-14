@@ -4,6 +4,6 @@ namespace geom
 {
 	struct Point2D 
 	{
-    		double x, y;
+    	double x, y;
 	};
 }  // namespace geom

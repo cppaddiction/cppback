@@ -5,6 +5,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_templated.hpp>
 #include <catch2/matchers/catch_matchers.hpp>
+
 // Напишите здесь тесты для функции collision_detector::FindGatherEvents
 
 const double item_width = 0.3;
@@ -14,7 +15,7 @@ enum class mode {
 	BL,
 	BR,
 	UL,
-	UR
+	UR,
 };
 
 class TestItemGathererProvider: public collision_detector::ItemGathererProvider {
@@ -30,22 +31,22 @@ public:
 		if (md == mode::BL)
 		{
 			gatherers_.emplace_back(geom::Point2D{ 0.0, 1.0 }, geom::Point2D{ 5.0, 1.0 }, gatherer_width);
-			gatherers_.emplace_back(geom::Point2D{ 1.0, 0.0 }, geom::Point2D{ 1.0, 5.0 }, gatherer_width);
+			gatherers_.emplace_back(geom::Point2D{ 1.0, -1.0 }, geom::Point2D{ 1.0, 5.0 }, gatherer_width);
 		}
 		else if (md == mode::BR)
 		{
 			gatherers_.emplace_back(geom::Point2D{ 5.0, 1.0 }, geom::Point2D{ 0.0, 1.0 }, gatherer_width);
-			gatherers_.emplace_back(geom::Point2D{ 4.0, 0.0 }, geom::Point2D{ 4.0, 5.0 }, gatherer_width);
+			gatherers_.emplace_back(geom::Point2D{ 4.0, -1.0 }, geom::Point2D{ 4.0, 5.0 }, gatherer_width);
 		}
 		else if (md == mode::UL)
 		{
 			gatherers_.emplace_back(geom::Point2D{ 0.0, 4.0 }, geom::Point2D{ 5.0, 4.0 }, gatherer_width);
-			gatherers_.emplace_back(geom::Point2D{ 1.0, 5.0 }, geom::Point2D{ 1.0, 0.0 }, gatherer_width);
+			gatherers_.emplace_back(geom::Point2D{ 1.0, 6.0 }, geom::Point2D{ 1.0, 0.0 }, gatherer_width);
 		}
 		else
 		{
 			gatherers_.emplace_back(geom::Point2D{ 5.0, 4.0 }, geom::Point2D{ 0.0, 4.0 }, gatherer_width);
-			gatherers_.emplace_back(geom::Point2D{ 4.0, 5.0 }, geom::Point2D{ 4.0, 0.0 }, gatherer_width);
+			gatherers_.emplace_back(geom::Point2D{ 4.0, 6.0 }, geom::Point2D{ 4.0, 0.0 }, gatherer_width);
 		}
 		//place gatherers in a special way | each gatherer collects 2 objects (items)
 	}
@@ -103,8 +104,65 @@ struct UniversalMatcher : Catch::Matchers::MatcherGenericBase {
     }
 };
 
+struct SpecialMatcherOne : Catch::Matchers::MatcherGenericBase {
+	SpecialMatcherOne() = default;
+	SpecialMatcherOne(SpecialMatcherOne&&) = default;
+
+	template <typename OtherRange>
+	bool match(OtherRange other) const {
+		using std::begin;
+		using std::end;
+		auto res1 = collision_detector::TryCollectPoint(geom::Point2D{ 0.0, 1.0 }, geom::Point2D{ 5.0, 1.0 }, geom::Point2D{ 1.0, 1.0 });
+		auto res2 = collision_detector::TryCollectPoint(geom::Point2D{ 1.0, -1.0 }, geom::Point2D{ 1.0, 5.0 }, geom::Point2D{ 1.0, 1.0 }); 
+		auto res3 = collision_detector::TryCollectPoint(geom::Point2D{ 0.0, 1.0 }, geom::Point2D{ 5.0, 1.0 }, geom::Point2D{ 4.0, 1.0 });
+		auto res4 = collision_detector::TryCollectPoint(geom::Point2D{ 1.0, -1.0 }, geom::Point2D{ 1.0, 5.0 }, geom::Point2D{ 1.0, 4.0 });
+		bool res1_collected = res1.IsCollected(item_width + gatherer_width);
+		bool res2_collected = res2.IsCollected(item_width + gatherer_width);
+		bool res3_collected = res3.IsCollected(item_width + gatherer_width);
+		bool res4_collected = res4.IsCollected(item.width + gatherer_width);
+		if (!(res1_collected && res2_collected && res3_collected && res4_collected))
+		{
+			return false;
+		}
+		else
+		{
+			auto res1_by_yandex = begin(other);
+			auto res2_by_yandex = std::next(res1_by_yandex, 1);
+			auto res3_by_yandex = std::next(res2_by_yandex, 1);
+			auto res4_by_yandex = std::next(res3_by_yandex, 1);
+			if (!(res1_by_yandex->sq_distance == res1_collected.sq_distance && res1_by_yandex->time == res1_collected.time && res1_by_yandex->item_id == 0 && res1_by_yandex->gatherer_id == 0))
+			{
+				return false;
+			}
+			if (!(res2_by_yandex->sq_distance == res2_collected.sq_distance && res2_by_yandex->time == res2_collected.time && res2_by_yandex->item_id == 0 && res2_by_yandex->gatherer_id == 1))
+			{
+				return false;
+			}
+			if (!(res3_by_yandex->sq_distance == res3_collected.sq_distance && res3_by_yandex->time == res3_collected.time && res3_by_yandex->item_id == 1 && res1_by_yandex->gatherer_id == 0))
+			{
+				return false;
+			}
+			if (!(res4_by_yandex->sq_distance == res4_collected.sq_distance && res4_by_yandex->time == res4_collected.time && res4_by_yandex->item_id == 2 && res1_by_yandex->gatherer_id == 1))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	std::string describe() const override {
+		// Описание свойства, проверяемого матчером:
+		using namespace std::literals;
+		return "SpecialMatcherOne"s;
+	}
+};
+
 UniversalMatcher GetUniversalMatcher() {
     return UniversalMatcher{};
+}
+
+SpecialMatcherOne GetSpecialMatcherOne() {
+	return SpecialMatcherOne{};
 }
 
 struct DefaultEvents1 {
@@ -131,6 +189,7 @@ TEST_CASE_METHOD(DefaultEvents1, "Everything is ok", DefaultEventsTag) {
 	prov.PlaceGatherers(mode::BL);
 	std::vector<collision_detector::GatheringEvent> result = collision_detector::FindGatherEvents(prov);
 	CHECK_THAT(result, GetUniversalMatcher());
+	CHECK_THAT(result, GetSpecialMatcherOne());
 }
 
 TEST_CASE_METHOD(DefaultEvents2, "Everything is ok", DefaultEventsTag) {
