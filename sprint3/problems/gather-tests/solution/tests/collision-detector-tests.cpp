@@ -109,11 +109,11 @@ struct SpecialMatcherOne : Catch::Matchers::MatcherGenericBase {
 	SpecialMatcherOne(SpecialMatcherOne&&) = default;
 
 	template <typename OtherRange>
-	bool match(OtherRange other) const {
+	bool match(OtherRange other) {
 		using std::begin;
 		using std::end;
 		auto res1 = collision_detector::TryCollectPoint(geom::Point2D{ 0.0, 1.0 }, geom::Point2D{ 5.0, 1.0 }, geom::Point2D{ 1.0, 1.0 });
-		auto res2 = collision_detector::TryCollectPoint(geom::Point2D{ 1.0, -1.0 }, geom::Point2D{ 1.0, 5.0 }, geom::Point2D{ 1.0, 1.0 }); 
+		auto res2 = collision_detector::TryCollectPoint(geom::Point2D{ 1.0, -1.0 }, geom::Point2D{ 1.0, 5.0 }, geom::Point2D{ 1.0, 1.0 });
 		auto res3 = collision_detector::TryCollectPoint(geom::Point2D{ 0.0, 1.0 }, geom::Point2D{ 5.0, 1.0 }, geom::Point2D{ 4.0, 1.0 });
 		auto res4 = collision_detector::TryCollectPoint(geom::Point2D{ 1.0, -1.0 }, geom::Point2D{ 1.0, 5.0 }, geom::Point2D{ 1.0, 4.0 });
 		bool res1_collected = res1.IsCollected(item_width + gatherer_width);
@@ -138,11 +138,11 @@ struct SpecialMatcherOne : Catch::Matchers::MatcherGenericBase {
 			{
 				return false;
 			}
-			if (!(res3_by_yandex->sq_distance == res3.sq_distance && res3_by_yandex->time == res3.proj_ratio && res3_by_yandex->item_id == 1 && res1_by_yandex->gatherer_id == 0))
+			if (!(res3_by_yandex->sq_distance == res3.sq_distance && res3_by_yandex->time == res3.proj_ratio && res3_by_yandex->item_id == 1 && res3_by_yandex->gatherer_id == 0))
 			{
 				return false;
 			}
-			if (!(res4_by_yandex->sq_distance == res4.sq_distance && res4_by_yandex->time == res4.proj_ratio && res4_by_yandex->item_id == 2 && res1_by_yandex->gatherer_id == 1))
+			if (!(res4_by_yandex->sq_distance == res4.sq_distance && res4_by_yandex->time == res4.proj_ratio && res4_by_yandex->item_id == 2 && res4_by_yandex->gatherer_id == 1))
 			{
 				return false;
 			}
