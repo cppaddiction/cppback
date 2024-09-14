@@ -109,26 +109,18 @@ UniversalMatcher GetUniversalMatcher() {
 
 struct DefaultEvents1 {
 	TestItemGathererProvider prov{};
-	prov.PlaceGatherers(mode::BL);
-	std::vector<collision_detector::GatheringEvent> result = collision_detector::FindGatherEvents(prov);
 };
 
 struct DefaultEvents2 {
 	TestItemGathererProvider prov{};
-	prov.PlaceGatherers(mode::BR);
-	std::vector<collision_detector::GatheringEvent> result = collision_detector::FindGatherEvents(prov);
 };
 
 struct DefaultEvents3 {
 	TestItemGathererProvider prov{};
-	prov.PlaceGatherers(mode::UL);
-	std::vector<collision_detector::GatheringEvent> result = collision_detector::FindGatherEvents(prov);
 };
 
 struct DefaultEvents4 {
 	TestItemGathererProvider prov{};
-	prov.PlaceGatherers(mode::UR);
-	std::vector<collision_detector::GatheringEvent> result = collision_detector::FindGatherEvents(prov);
 };
 
 namespace {
@@ -136,17 +128,25 @@ namespace {
 }
 
 TEST_CASE_METHOD(DefaultEvents1, "Everything is ok", DefaultEventsTag) {
+	prov.PlaceGatherers(mode::BL);
+	std::vector<collision_detector::GatheringEvent> result = collision_detector::FindGatherEvents(prov);
 	CHECK_THAT(result, GetUniversalMatcher());
 }
 
 TEST_CASE_METHOD(DefaultEvents2, "Everything is ok", DefaultEventsTag) {
+	prov.PlaceGatherers(mode::BR);
+	std::vector<collision_detector::GatheringEvent> result = collision_detector::FindGatherEvents(prov);
 	CHECK_THAT(result, GetUniversalMatcher());
 }
 
 TEST_CASE_METHOD(DefaultEvents3, "Everything is ok", DefaultEventsTag) {
+	prov.PlaceGatherers(mode::UL);
+	std::vector<collision_detector::GatheringEvent> result = collision_detector::FindGatherEvents(prov);
 	CHECK_THAT(result, GetUniversalMatcher());
 }
 
 TEST_CASE_METHOD(DefaultEvents4, "Everything is ok", DefaultEventsTag) {
+	prov.PlaceGatherers(mode::UR);
+	std::vector<collision_detector::GatheringEvent> result = collision_detector::FindGatherEvents(prov);
 	CHECK_THAT(result, GetUniversalMatcher());
 }
