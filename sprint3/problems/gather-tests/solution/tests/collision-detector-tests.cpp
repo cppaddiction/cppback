@@ -130,19 +130,19 @@ struct SpecialMatcherOne : Catch::Matchers::MatcherGenericBase {
 			auto res2_by_yandex = std::next(res1_by_yandex, 1);
 			auto res3_by_yandex = std::next(res2_by_yandex, 1);
 			auto res4_by_yandex = std::next(res3_by_yandex, 1);
-			if (!(res1_by_yandex->sq_distance == res1_collected.sq_distance && res1_by_yandex->time == res1_collected.time && res1_by_yandex->item_id == 0 && res1_by_yandex->gatherer_id == 0))
+			if (!(res1_by_yandex->sq_distance == res1.sq_distance && res1_by_yandex->time == res1.time && res1_by_yandex->item_id == 0 && res1_by_yandex->gatherer_id == 0))
 			{
 				return false;
 			}
-			if (!(res2_by_yandex->sq_distance == res2_collected.sq_distance && res2_by_yandex->time == res2_collected.time && res2_by_yandex->item_id == 0 && res2_by_yandex->gatherer_id == 1))
+			if (!(res2_by_yandex->sq_distance == res2.sq_distance && res2_by_yandex->time == res2.time && res2_by_yandex->item_id == 0 && res2_by_yandex->gatherer_id == 1))
 			{
 				return false;
 			}
-			if (!(res3_by_yandex->sq_distance == res3_collected.sq_distance && res3_by_yandex->time == res3_collected.time && res3_by_yandex->item_id == 1 && res1_by_yandex->gatherer_id == 0))
+			if (!(res3_by_yandex->sq_distance == res3.sq_distance && res3_by_yandex->time == res3.time && res3_by_yandex->item_id == 1 && res1_by_yandex->gatherer_id == 0))
 			{
 				return false;
 			}
-			if (!(res4_by_yandex->sq_distance == res4_collected.sq_distance && res4_by_yandex->time == res4_collected.time && res4_by_yandex->item_id == 2 && res1_by_yandex->gatherer_id == 1))
+			if (!(res4_by_yandex->sq_distance == res4.sq_distance && res4_by_yandex->time == res4.time && res4_by_yandex->item_id == 2 && res1_by_yandex->gatherer_id == 1))
 			{
 				return false;
 			}
