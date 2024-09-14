@@ -5,6 +5,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_templated.hpp>
 #include <catch2/matchers/catch_matchers.hpp>
+#include <catch2/matchers/catch_matchers_floating_point.hpp>
 
 // Напишите здесь тесты для функции collision_detector::FindGatherEvents
 
@@ -126,6 +127,7 @@ struct SpecialMatcherOne : Catch::Matchers::MatcherGenericBase {
 		}
 		else
 		{
+			using Catch::Matchers::WithinAbs;
 			auto res1_by_yandex = begin(other);
 			auto res2_by_yandex = std::next(res1_by_yandex, 1);
 			auto res3_by_yandex = std::next(res2_by_yandex, 1);
@@ -134,18 +136,26 @@ struct SpecialMatcherOne : Catch::Matchers::MatcherGenericBase {
 			{
 				return false;
 			}
+			CHECK_THAT(res1_by_yandex->sq_distance, WithinAbs(res1.sq_distance, 1e-16));
+			CHECK_THAT(res1_by_yandex->time, WithinAbs(res1.proj_ratio, 1e-16));
 			if (!(res2_by_yandex->sq_distance == res2.sq_distance && res2_by_yandex->time == res2.proj_ratio && res2_by_yandex->item_id == 0 && res2_by_yandex->gatherer_id == 1))
 			{
 				return false;
 			}
+			CHECK_THAT(res2_by_yandex->sq_distance, WithinAbs(res2.sq_distance, 1e-16));
+			CHECK_THAT(res2_by_yandex->time, WithinAbs(res2.proj_ratio, 1e-16));
 			if (!(res3_by_yandex->sq_distance == res3.sq_distance && res3_by_yandex->time == res3.proj_ratio && res3_by_yandex->item_id == 1 && res3_by_yandex->gatherer_id == 0))
 			{
 				return false;
 			}
+			CHECK_THAT(res3_by_yandex->sq_distance, WithinAbs(res3.sq_distance, 1e-16));
+			CHECK_THAT(res3_by_yandex->time, WithinAbs(res3.proj_ratio, 1e-16));
 			if (!(res4_by_yandex->sq_distance == res4.sq_distance && res4_by_yandex->time == res4.proj_ratio && res4_by_yandex->item_id == 2 && res4_by_yandex->gatherer_id == 1))
 			{
 				return false;
 			}
+			CHECK_THAT(res4_by_yandex->sq_distance, WithinAbs(res4.sq_distance, 1e-16));
+			CHECK_THAT(res4_by_yandex->time, WithinAbs(res4.proj_ratio, 1e-16));
 		}
 		return true;
 	}
@@ -191,6 +201,14 @@ TEST_CASE_METHOD(DefaultEvents1, "Everything is ok", DefaultEventsTag) {
 	CHECK_THAT(result, GetUniversalMatcher());
 	CHECK_THAT(result, GetSpecialMatcherOne());
 }
+
+// here I could add 3 more custom matchers (SpecialMatcherTwo, SpecialMatcherThree, SpecialMatcherFour) in order to add
+
+// CHECK_THAT(result, GetSpecialMatcherTwo());
+// CHECK_THAT(result, GetSpecialMatcherThree());
+// CHECK_THAT(result, GetSpecialMatcherFour());
+
+// in the next following 3 test cases but this was enough to break all git repo tests
 
 TEST_CASE_METHOD(DefaultEvents2, "Everything is ok", DefaultEventsTag) {
 	prov.PlaceGatherers(mode::BR);
