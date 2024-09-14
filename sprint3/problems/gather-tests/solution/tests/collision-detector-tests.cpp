@@ -3,7 +3,8 @@
 #include "../src/collision_detector.h"
 #include <vector>
 #include <catch2/catch_test_macros.hpp>
-
+#include <catch2/matchers/catch_matchers_templated.hpp>
+#include <catch2/matchers/catch_matchers.hpp>
 // Напишите здесь тесты для функции collision_detector::FindGatherEvents
 
 const double item_width = 0.3;
@@ -107,25 +108,25 @@ UniversalMatcher GetUniversalMatcher() {
 }
 
 struct DefaultEvents1 {
-	TestItemGathererProvider prov;
+	TestItemGathererProvider prov{};
 	prov.PlaceGatherers(mode::BL);
 	std::vector<collision_detector::GatheringEvent> result = collision_detector::FindGatherEvents(prov);
 };
 
 struct DefaultEvents2 {
-	TestItemGathererProvider prov;
+	TestItemGathererProvider prov{};
 	prov.PlaceGatherers(mode::BR);
 	std::vector<collision_detector::GatheringEvent> result = collision_detector::FindGatherEvents(prov);
 };
 
 struct DefaultEvents3 {
-	TestItemGathererProvider prov;
+	TestItemGathererProvider prov{};
 	prov.PlaceGatherers(mode::UL);
 	std::vector<collision_detector::GatheringEvent> result = collision_detector::FindGatherEvents(prov);
 };
 
 struct DefaultEvents4 {
-	TestItemGathererProvider prov;
+	TestItemGathererProvider prov{};
 	prov.PlaceGatherers(mode::UR);
 	std::vector<collision_detector::GatheringEvent> result = collision_detector::FindGatherEvents(prov);
 };
