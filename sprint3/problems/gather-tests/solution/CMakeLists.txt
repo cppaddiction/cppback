@@ -15,7 +15,7 @@ add_library(collision_detection_lib STATIC
 	src/collision_detector.cpp
 )
 
-# target_link_libraries(collision_detection_lib PUBLIC CONAN_PKG::boost Threads::Threads)
+target_link_libraries(collision_detection_lib PUBLIC CONAN_PKG::boost Threads::Threads)
 
 add_executable(collision_detection_tests
 	tests/collision-detector-tests.cpp

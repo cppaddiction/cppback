@@ -109,7 +109,7 @@ struct SpecialMatcherOne : Catch::Matchers::MatcherGenericBase {
 	SpecialMatcherOne(SpecialMatcherOne&&) = default;
 
 	template <typename OtherRange>
-	bool match(OtherRange other) {
+	bool match(OtherRange other) const {
 		using std::begin;
 		using std::end;
 		auto res1 = collision_detector::TryCollectPoint(geom::Point2D{ 0.0, 1.0 }, geom::Point2D{ 5.0, 1.0 }, geom::Point2D{ 1.0, 1.0 });
