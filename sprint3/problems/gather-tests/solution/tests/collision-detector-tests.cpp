@@ -127,7 +127,7 @@ struct SpecialMatcherOne : Catch::Matchers::MatcherGenericBase {
 		}
 		else
 		{
-			using Catch::Matchers::WithinAbs;
+			//using Catch::Matchers::WithinAbs;
 			auto res1_by_yandex = begin(other);
 			auto res2_by_yandex = std::next(res1_by_yandex, 1);
 			auto res3_by_yandex = std::next(res2_by_yandex, 1);
