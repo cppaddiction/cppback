@@ -8,8 +8,8 @@
 
 // Напишите здесь тесты для функции collision_detector::FindGatherEvents
 
-const double item_width = 0.3;
-const double gatherer_width = 0.6;
+const double item_width = 0.2;
+const double gatherer_width = 0.3;
 
 enum class mode {
 	BL,
@@ -30,22 +30,22 @@ public:
 	void PlaceGatherers(mode md) {
 		if (md == mode::BL)
 		{
-			gatherers_.emplace_back(geom::Point2D{ 0.0, 1.0 }, geom::Point2D{ 5.0, 1.0 }, gatherer_width);
+			gatherers_.emplace_back(geom::Point2D{ 0.0, 0.6 }, geom::Point2D{ 5.0, 0.6 }, gatherer_width);
 			gatherers_.emplace_back(geom::Point2D{ 1.0, -1.0 }, geom::Point2D{ 1.0, 5.0 }, gatherer_width);
 		}
 		else if (md == mode::BR)
 		{
-			gatherers_.emplace_back(geom::Point2D{ 5.0, 1.0 }, geom::Point2D{ 0.0, 1.0 }, gatherer_width);
+			gatherers_.emplace_back(geom::Point2D{ 5.0, 0.6 }, geom::Point2D{ 0.0, 0.6 }, gatherer_width);
 			gatherers_.emplace_back(geom::Point2D{ 4.0, -1.0 }, geom::Point2D{ 4.0, 5.0 }, gatherer_width);
 		}
 		else if (md == mode::UL)
 		{
-			gatherers_.emplace_back(geom::Point2D{ 0.0, 4.0 }, geom::Point2D{ 5.0, 4.0 }, gatherer_width);
+			gatherers_.emplace_back(geom::Point2D{ 0.0, 4.4 }, geom::Point2D{ 5.0, 4.4 }, gatherer_width);
 			gatherers_.emplace_back(geom::Point2D{ 1.0, 6.0 }, geom::Point2D{ 1.0, 0.0 }, gatherer_width);
 		}
 		else
 		{
-			gatherers_.emplace_back(geom::Point2D{ 5.0, 4.0 }, geom::Point2D{ 0.0, 4.0 }, gatherer_width);
+			gatherers_.emplace_back(geom::Point2D{ 5.0, 4.4 }, geom::Point2D{ 0.0, 4.4 }, gatherer_width);
 			gatherers_.emplace_back(geom::Point2D{ 4.0, 6.0 }, geom::Point2D{ 4.0, 0.0 }, gatherer_width);
 		}
 		//place gatherers in a special way | each gatherer collects 2 objects (items)
@@ -112,9 +112,9 @@ struct SpecialMatcherOne : Catch::Matchers::MatcherGenericBase {
 	bool match(OtherRange other) const {
 		using std::begin;
 		using std::end;
-		auto res1 = collision_detector::TryCollectPoint(geom::Point2D{ 0.0, 1.0 }, geom::Point2D{ 5.0, 1.0 }, geom::Point2D{ 1.0, 1.0 });
+		auto res1 = collision_detector::TryCollectPoint(geom::Point2D{ 0.0, 0.6 }, geom::Point2D{ 5.0, 0.6 }, geom::Point2D{ 1.0, 1.0 });
 		auto res2 = collision_detector::TryCollectPoint(geom::Point2D{ 1.0, -1.0 }, geom::Point2D{ 1.0, 5.0 }, geom::Point2D{ 1.0, 1.0 });
-		auto res3 = collision_detector::TryCollectPoint(geom::Point2D{ 0.0, 1.0 }, geom::Point2D{ 5.0, 1.0 }, geom::Point2D{ 4.0, 1.0 });
+		auto res3 = collision_detector::TryCollectPoint(geom::Point2D{ 0.0, 0.6 }, geom::Point2D{ 5.0, 0.6 }, geom::Point2D{ 4.0, 1.0 });
 		auto res4 = collision_detector::TryCollectPoint(geom::Point2D{ 1.0, -1.0 }, geom::Point2D{ 1.0, 5.0 }, geom::Point2D{ 1.0, 4.0 });
 		bool res1_collected = res1.IsCollected(item_width + gatherer_width);
 		bool res2_collected = res2.IsCollected(item_width + gatherer_width);
