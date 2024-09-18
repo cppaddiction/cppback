@@ -29,10 +29,10 @@ jobs:
           pip install -r requirements.txt
           pip show pytest
 
-      - name: run tests sprint3 find_return
+      - name: run tests sprint3 scores
         run: |
           cd cpp-backend-tests-practicum/scripts/sprint3
-          ./find_return/run.sh
+          ./scores/run.sh
 
       - name: Publish XML reports
         uses: EnricoMi/publish-unit-test-result-action@v2
