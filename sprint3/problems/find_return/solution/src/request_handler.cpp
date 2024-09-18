@@ -322,9 +322,32 @@ namespace http_handler {
         builder.Value(CollectRoads(m)).Key(BUILDINGS);
         builder.Value(CollectBuildings(m)).Key(OFFICES);
         builder.Value(CollectOffices(m));
+
+        std::ostringstream dog_speed_data_strm;
+        if (loot_types::to_frontend_dog_speed_data.find(*(m->GetId())) != loot_types::to_frontend_dog_speed_data.end())
+        {
+            dog_speed_data_strm << loot_types::to_frontend_dog_speed_data[*(m->GetId())];
+        }
+
+        std::ostringstream bag_capacity_data_strm;
+        if (loot_types::to_frontend_bag_capacity_data.find(*(m->GetId())) != loot_types::to_frontend_bag_capacity_data.end())
+        {
+            bag_capacity_data_strm << loot_types::to_frontend_bag_capacity_data[*(m->GetId())];
+        }
+
         std::ostringstream strm; strm << loot_types::to_frontend_loot_type_data[*(m->GetId())];
         auto maps_parsed = json::Print(builder.EndDict().Build());
         auto maps_to_string = maps_parsed.substr(0, maps_parsed.size() - 1) + "," + LOOT_TYPES + ":" + strm.str() + "}";
+
+        if (dog_speed_data_strm.str()!="")
+        {
+            maps_to_string = maps_to_string.substr(0, maps_to_string.size() - 1) + "," + MAP_DOG_SPEED + ":" + dog_speed_data_strm.str() + "}";
+        }
+
+        if (bag_capacity_data_strm.str() != "")
+        {
+            maps_to_string = maps_to_string.substr(0, maps_to_string.size() - 1) + "," + MAP_BAG_CAPACITY + ":" + bag_capacity_data_strm.str() + "}";
+        }
         return maps_to_string;
     }
 
