@@ -42,6 +42,7 @@ const std::string TYPE = "type";
 const std::string ROTATION = "rotation";
 const std::string COLOR = "color";
 const std::string SCALE = "scale";
+const std::string VALUE = "value";
 
 const std::string DEFAULT_BAG_CAPACITY = "defaultBagCapacity";
 const std::string MAP_BAG_CAPACITY = "bagCapacity";

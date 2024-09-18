@@ -15,7 +15,7 @@ void LoadMaps(const json::array& maps, model::Game& game)
         if (p_value)
         {
             map.AddSpecificMapDogSpeed(m.as_object().at(MAP_DOG_SPEED).as_double());
-            loot_types::to_frontend_dog_speed_data[static_cast<std::string>(m.as_object().at(ID).as_string())] = m.as_object().at(MAP_DOG_SPEED).as_double();
+            //loot_types::to_frontend_dog_speed_data[static_cast<std::string>(m.as_object().at(ID).as_string())] = m.as_object().at(MAP_DOG_SPEED).as_double();
         }
         else
         {
@@ -25,7 +25,7 @@ void LoadMaps(const json::array& maps, model::Game& game)
         if (p_value2)
         {
             map.AddSpecificBagCapacity(m.as_object().at(MAP_BAG_CAPACITY).as_int64());
-            loot_types::to_frontend_bag_capacity_data[static_cast<std::string>(m.as_object().at(ID).as_string())] = m.as_object().at(MAP_BAG_CAPACITY).as_int64();
+            //loot_types::to_frontend_bag_capacity_data[static_cast<std::string>(m.as_object().at(ID).as_string())] = m.as_object().at(MAP_BAG_CAPACITY).as_int64();
         }
         else
         {
@@ -71,6 +71,11 @@ void LoadMaps(const json::array& maps, model::Game& game)
             if (p_value_scale)
             {
                 obj.emplace(SCALE, item.as_object().at(SCALE).as_double());
+            }
+            ::boost::json::value const* const p_value_value{ item.as_object().if_contains(VALUE) };
+            if (p_value_scale)
+            {
+                obj.emplace(VALUE, item.as_object().at(VALUE).as_int64());
             }
             arr.emplace_back(obj);
         }

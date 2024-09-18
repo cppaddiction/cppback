@@ -148,8 +148,8 @@ namespace http_handler {
 
         const std::string BAG = "bag";
 
-        const std::string MAP_DOG_SPEED = "\"dogSpeed\"";
-        const std::string MAP_BAG_CAPACITY = "\"bagCapacity\"";
+        //const std::string MAP_DOG_SPEED = "\"dogSpeed\"";
+        //const std::string MAP_BAG_CAPACITY = "\"bagCapacity\"";
 
         using StringRequest = http::request<http::string_body>;
 
