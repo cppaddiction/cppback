@@ -109,7 +109,7 @@ void PrintNode(const Node& node, std::ostream& out) {
 
 using Number = std::variant<int, double>;
 
-Number Load_Number(std::istream& input) {
+Number LoadNumberToNode(std::istream& input) {
     using namespace std::literals;
     std::string parsed_num;
 
@@ -168,7 +168,7 @@ Number Load_Number(std::istream& input) {
     }
 }
 
-std::string Load_String(std::istream& input) {
+std::string LoadStringToNode(std::istream& input) {
     using namespace std::literals;
     auto it = std::istreambuf_iterator<char>(input);
     auto end = std::istreambuf_iterator<char>();
@@ -234,8 +234,8 @@ Node LoadArray(istream& input) {
     return Node(move(result));
 }
 
-Node LoadNumber(istream& input) {
-    auto result=Load_Number(input);
+Node LoadNumber(istream& input) { // input can't be const istream& because LoadNumberToNode modifies it
+    auto result=LoadNumberToNode(input); // Number LoadNumberToNode(std::istream& input)
     try {
         [[maybe_unused]] auto x=get<double>(result);
         return Node(x);
@@ -254,7 +254,7 @@ Node LoadNumber(istream& input) {
 }
 
 Node LoadString(istream& input) {
-    return Node(Load_String(input));
+    return Node(LoadStringToNode(input));
 }
 
 Node LoadDict(istream& input) {
@@ -440,11 +440,8 @@ int Node::AsInt() const {
     {
         return get<int>(value_);
     }
-    else
-    {
 
-        throw logic_error("Int");
-    }
+    throw logic_error("Int");
 }
 
 bool Node::AsBool() const {
@@ -452,10 +449,8 @@ bool Node::AsBool() const {
     {
         return get<bool>(value_);
     }
-    else
-    {
-        throw logic_error("Bool");
-    }
+
+    throw logic_error("Bool");
 }
 
 double Node::AsDouble() const {
@@ -466,10 +461,8 @@ double Node::AsDouble() const {
         else
             return static_cast<double>(get<int>(value_));
     }
-    else
-    {
-        throw logic_error("Double");
-    }
+
+    throw logic_error("Double");
 }
 
 const std::string& Node::AsString() const
@@ -478,10 +471,8 @@ const std::string& Node::AsString() const
     {
         return get<string>(value_);
     }
-    else
-    {
-        throw logic_error("String");
-    }
+
+    throw logic_error("String");
 }
 
 const Array& Node::AsArray() const
@@ -490,10 +481,8 @@ const Array& Node::AsArray() const
     {
         return get<Array>(value_);
     }
-    else
-    {
-        throw logic_error("Array");
-    }
+
+    throw logic_error("Array");
 }
 
 const Dict& Node::AsMap() const
@@ -502,10 +491,8 @@ const Dict& Node::AsMap() const
     {
         return get<Dict>(value_);
     }
-    else
-    {
-        throw logic_error("Map");
-    }
+
+    throw logic_error("Map");
 }
 
 Document::Document(Node root)

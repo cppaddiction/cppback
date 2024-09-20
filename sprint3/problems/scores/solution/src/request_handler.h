@@ -335,7 +335,8 @@ namespace http_handler {
             DurationMeasure* dm = new DurationMeasure(time);
             auto response = HandleRequest(std::forward<decltype(req)>(req), game_);
             dm->~DurationMeasure();
-            try {
+            if (std::holds_alternative<FileResponse>(response))
+            {
                 auto response_specified = std::move(get<FileResponse>(response));
                 std::string CT;
                 for (auto& field : response_specified.base())
@@ -349,14 +350,11 @@ namespace http_handler {
                 }
                 auto tick = boost::posix_time::microsec_clock::local_time();
                 boost::json::value custom_data{ {"message", "response sent"}, {"timestamp", to_iso_extended_string(tick)}, {"data", boost::json::value{{"response_time", time}, {"code", response_specified.result_int()}, {"content_type", CT}}} };
-                BOOST_LOG_TRIVIAL(info) << logging::add_value(additional_data, custom_data);                
+                BOOST_LOG_TRIVIAL(info) << logging::add_value(additional_data, custom_data);
                 return send(response_specified);
             }
-            catch (...)
+            else
             {
-
-            }
-            try {
                 auto response_specified = std::move(get<StringResponse>(response));
                 std::string CT;
                 for (auto& field : response_specified.base())
@@ -370,12 +368,8 @@ namespace http_handler {
                 }
                 auto tick = boost::posix_time::microsec_clock::local_time();
                 boost::json::value custom_data{ {"message", "response sent"}, {"timestamp", to_iso_extended_string(tick)}, {"data", boost::json::value{{"response_time", time}, {"code", response_specified.result_int()}, {"content_type", CT}}} };
-                BOOST_LOG_TRIVIAL(info) << logging::add_value(additional_data, custom_data); 
+                BOOST_LOG_TRIVIAL(info) << logging::add_value(additional_data, custom_data);
                 return send(response_specified);
-            }
-            catch (...)
-            {
-
             }
         }
 

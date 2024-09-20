@@ -29,7 +29,7 @@ namespace app {
         std::ostringstream strm_;
     };
 
-	class Player {
+    class Player {
     public:
         Player();
         Player(model::Dog dog, std::shared_ptr<model::GameSession> session, Token token);
@@ -40,13 +40,13 @@ namespace app {
         void SyncronizeSession();
         const model::GameSession& GetSession() const;
         Token GetAuthToken() const;
-	private:
+    private:
         model::Dog dog_;
         std::shared_ptr<model::GameSession> session_;
-		Token token_;
-	};
+	    Token token_;
+    };
 
-	class Players {
+    class Players {
         struct PlayerInfo {
             bool operator==(const PlayerInfo& other) const { return dog_id == other.dog_id && map_id == other.map_id; }
             std::uint64_t dog_id;
@@ -65,5 +65,5 @@ namespace app {
     private:
         std::unordered_map<PlayerInfo, Player, PlayerInfoHasher> players_by_info_;
         std::unordered_map<Token, Player, util::TaggedHasher<Token>> players_by_token_;
-	};
+    };
 }

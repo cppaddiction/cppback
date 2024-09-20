@@ -66,35 +66,13 @@ public:
     constexpr static HorizontalTag HORIZONTAL{};
     constexpr static VerticalTag VERTICAL{};
 
-    Road(HorizontalTag, Point start, Coord end_x) noexcept
-        : start_{start}
-        , end_{end_x, start.y} {
-    }
-
-    Road(VerticalTag, Point start, Coord end_y) noexcept
-        : start_{start}
-        , end_{start.x, end_y} {
-    }
-
-    bool IsHorizontal() const noexcept {
-        return start_.y == end_.y;
-    }
-
-    bool IsVertical() const noexcept {
-        return start_.x == end_.x;
-    }
-
-    Point GetStart() const noexcept {
-        return start_;
-    }
-
-    Point GetEnd() const noexcept {
-        return end_;
-    }
-
-    bool operator==(const Road& other) const {
-        return GetStart() == other.GetStart() && GetEnd() == other.GetEnd();
-    }
+    Road(HorizontalTag, Point start, Coord end_x) noexcept;
+    Road(VerticalTag, Point start, Coord end_y) noexcept;
+    bool IsHorizontal() const noexcept;
+    bool IsVertical() const noexcept;
+    Point GetStart() const noexcept;
+    Point GetEnd() const noexcept;
+    bool operator==(const Road& other) const;
 
 private:
     Point start_;
@@ -113,13 +91,8 @@ std::optional<Point> IsIntersect(const Road& r1, const Road& r2);
 
 class Building {
 public:
-    explicit Building(Rectangle bounds) noexcept
-        : bounds_{bounds} {
-    }
-
-    const Rectangle& GetBounds() const noexcept {
-        return bounds_;
-    }
+    explicit Building(Rectangle bounds) noexcept;
+    const Rectangle& GetBounds() const noexcept;
 
 private:
     Rectangle bounds_;
@@ -129,23 +102,10 @@ class Office {
 public:
     using Id = util::Tagged<std::string, Office>;
 
-    Office(Id id, Point position, Offset offset) noexcept
-        : id_{std::move(id)}
-        , position_{position}
-        , offset_{offset} {
-    }
-
-    const Id& GetId() const noexcept {
-        return id_;
-    }
-
-    Point GetPosition() const noexcept {
-        return position_;
-    }
-
-    Offset GetOffset() const noexcept {
-        return offset_;
-    }
+    Office(Id id, Point position, Offset offset) noexcept;
+    const Id& GetId() const noexcept;
+    Point GetPosition() const noexcept;
+    Offset GetOffset() const noexcept;
 
 private:
     Id id_;
@@ -160,68 +120,23 @@ public:
     using Buildings = std::vector<Building>;
     using Offices = std::vector<Office>;
 
-    Map(Id id, std::string name) noexcept
-        : id_(std::move(id))
-        , name_(std::move(name)) {
-    }
-
-    const Id& GetId() const noexcept {
-        return id_;
-    }
-
-    const std::string& GetName() const noexcept {
-        return name_;
-    }
-
-    const Buildings& GetBuildings() const noexcept {
-        return buildings_;
-    }
-
-    const Roads& GetRoads() const noexcept {
-        return roads_;
-    }
-
-    const Offices& GetOffices() const noexcept {
-        return offices_;
-    }
-
-    void AddRoad(const Road& road) {
-        roads_.emplace_back(road);
-    }
-
-    void AddBuilding(const Building& building) {
-        buildings_.emplace_back(building);
-    }
-
+    Map(Id id, std::string name) noexcept;
+    const Id& GetId() const noexcept;
+    const std::string& GetName() const noexcept;
+    const Buildings& GetBuildings() const noexcept;
+    const Roads& GetRoads() const noexcept;
+    const Offices& GetOffices() const noexcept;
+    void AddRoad(const Road& road);
+    void AddBuilding(const Building& building);
     void AddOffice(Office office);
-
-    void AddSpecificMapDogSpeed(double speed) {
-        specific_map_dog_speed_ = speed;
-    }
-
-    void AddSpecificBagCapacity(std::uint64_t bag_capacity) {
-        bag_capacity_ = bag_capacity;
-    }
-
-    double GetSpecificMapDogSpeed() const {
-        return specific_map_dog_speed_;
-    }
-
-    std::uint64_t GetSpecificBagCapacity() const {
-        return bag_capacity_;
-    }
-
+    void AddSpecificMapDogSpeed(double speed);
+    void AddSpecificBagCapacity(std::uint64_t bag_capacity);
+    double GetSpecificMapDogSpeed() const;
+    std::uint64_t GetSpecificBagCapacity() const;
     std::pair<const Road*, Position> GetRandomPosition(bool randomize_spawn_points) const;
-
     void CreateRoadGrid();
-
-    const std::vector<Point>& GetRoadCrossses(const Road& road) const {
-        return roads_to_crosses_.at(road);
-    }
-
-    const std::pair<Road, Road>& GetNeighbourRoad(const Point& cross) const {
-        return grid_.at(cross);
-    }
+    const std::vector<Point>& GetRoadCrossses(const Road& road) const;
+    const std::pair<Road, Road>& GetNeighbourRoad(const Point& cross) const;
 
 private:
     using OfficeIdToIndex = std::unordered_map<Office::Id, size_t, util::TaggedHasher<Office::Id>>;
@@ -245,33 +160,12 @@ public:
     using Maps = std::vector<Map>;
 
     void AddMap(Map map);
-
-    void AddDefaultDogSpeed(double speed) {
-        default_dog_speed_ = speed;
-    }
-
-    void AddDefaultBagCapacity(std::uint64_t def_bag_capacity) {
-        def_bag_capacity_ = def_bag_capacity;
-    }
-
-    double GetDefaultDogSpeed() const {
-        return default_dog_speed_;
-    }
-
-    std::uint64_t GetDefaultBagCapacity() const {
-        return def_bag_capacity_;
-    }
-
-    const Maps& GetMaps() const noexcept {
-        return maps_;
-    }
-
-    const Map* FindMap(const Map::Id& id) const noexcept {
-        if (auto it = map_id_to_index_.find(id); it != map_id_to_index_.end()) {
-            return &maps_.at(it->second);
-        }
-        return nullptr;
-    }
+    void AddDefaultDogSpeed(double speed);
+    void AddDefaultBagCapacity(std::uint64_t def_bag_capacity);
+    double GetDefaultDogSpeed() const;
+    std::uint64_t GetDefaultBagCapacity() const;
+    const Maps& GetMaps() const noexcept;
+    const Map* FindMap(const Map::Id& id) const noexcept;
 
 private:
     using MapIdHasher = util::TaggedHasher<Map::Id>;
@@ -286,12 +180,13 @@ private:
 class LostObject {
 public:
     LostObject() = default;
-    LostObject(double x, double y, std::uint64_t id, int type, int score_per_obj) : x_(x), y_(y), id_(id), type_(type), score_per_obj_(score_per_obj) {}
-    double GetX() const { return x_; }
-    double GetY() const { return y_; }
-    std::uint64_t GetId() const { return id_; }
-    int GetType() const { return type_; }
-    int GetScorePerObj() const { return score_per_obj_; }
+    LostObject(double x, double y, std::uint64_t id, int type, int score_per_obj);
+    double GetX() const;
+    double GetY() const;
+    std::uint64_t GetId() const;
+    int GetType() const;
+    int GetScorePerObj() const;
+
 private:
     double x_ = 0.0;
     double y_ = 0.0;
@@ -304,29 +199,24 @@ class Dog {
 public:
     Dog() = default;
     Dog(std::string name, Position pos, const Road* r);
-    Dog(std::string name, std::uint64_t id) : name_(name), id_(id) {}
-    bool operator==(const Dog& other) const { return name_ == other.name_ && id_ == other.id_; }
-    const std::string& GetName() const { return name_; }
-    std::uint64_t GetId() const { return id_; }
-    std::uint64_t GetScore() const { return score_; }
-    Position GetPos() const { return pos_; }
-    Speed GetSpd() const { return spd_; }
-    const std::string& GetDir() const { return dir_; }
-    void SetDir(std::string dir) { dir_ = dir; }
-    void SetSpeed(double vxx, double vyy) { spd_.vx = vxx; spd_.vy = vyy; }
-    void Move(Position pos) { pos_ = pos; }
-    const Road& GetRoad() const { return *r_; }
-    void SetRoad(const Road* r) { r_ = r; }
-    void AddLoot(const LostObject& obj) { bag_.push_back(obj); }
-    const std::vector<LostObject>& GetBag() const { return bag_; }
-    void DropLoot() {
-        for (const auto& item : bag_)
-        {
-            score_ += item.GetScorePerObj();
-        }
-        bag_.clear(); 
-    }
-    bool CanLoot(std::uint64_t max) { return bag_.size() < max; }
+    Dog(std::string name, std::uint64_t id);
+    bool operator==(const Dog& other) const;
+    const std::string& GetName() const;
+    std::uint64_t GetId() const;
+    std::uint64_t GetScore() const;
+    Position GetPos() const;
+    Speed GetSpd() const;
+    const std::string& GetDir() const;
+    void SetDir(std::string dir);
+    void SetSpeed(double vxx, double vyy);
+    void Move(Position pos);
+    const Road& GetRoad() const;
+    void SetRoad(const Road* r);
+    void AddLoot(const LostObject& obj);
+    const std::vector<LostObject>& GetBag() const;
+    void DropLoot();
+    bool CanLoot(std::uint64_t max);
+
 private:
     std::string name_ = "";
     std::uint64_t id_ = 0;

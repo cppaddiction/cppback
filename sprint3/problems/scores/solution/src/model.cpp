@@ -321,10 +321,6 @@ void GameSession::ProcessHorizontalRoad(model::Dog& d, const model::Road current
             }
         }
     }
-    else
-    {
-
-    }
 }
 void GameSession::ProcessVerticalRoad(model::Dog& d, const model::Road current_road, model::Position& pos, const model::Speed spd, const std::string& dir, double time_sec, const model::Map& m)
 {
@@ -445,10 +441,6 @@ void GameSession::ProcessVerticalRoad(model::Dog& d, const model::Road current_r
             }
         }
     }
-    else
-    {
-
-    }
 }
 const Map& GameSession::GetMap() const { return *map_; }
 std::uint64_t GameSession::GetId() const { return id_; }
@@ -512,7 +504,7 @@ size_t TestItemGathererProvider::ItemsCount() const {
 }
 
 collision_detector::Item TestItemGathererProvider::GetItem(size_t idx) const {
-    return items_[idx];
+    return items_.at(idx);
 }
 
 size_t TestItemGathererProvider::GatherersCount() const {
@@ -520,7 +512,178 @@ size_t TestItemGathererProvider::GatherersCount() const {
 }
 
 collision_detector::Gatherer TestItemGathererProvider::GetGatherer(size_t idx) const {
-    return gatherers_[idx];
+    return gatherers_.at(idx);
 }
+
+Road::Road(HorizontalTag, Point start, Coord end_x) noexcept
+    : start_{ start }
+    , end_{ end_x, start.y } {
+}
+
+Road::Road(VerticalTag, Point start, Coord end_y) noexcept
+    : start_{ start }
+    , end_{ start.x, end_y } {
+}
+
+bool Road::IsHorizontal() const noexcept {
+    return start_.y == end_.y;
+}
+
+bool Road::IsVertical() const noexcept {
+    return start_.x == end_.x;
+}
+
+Point Road::GetStart() const noexcept {
+    return start_;
+}
+
+Point Road::GetEnd() const noexcept {
+    return end_;
+}
+
+bool Road::operator==(const Road& other) const {
+    return GetStart() == other.GetStart() && GetEnd() == other.GetEnd();
+}
+
+Building::Building(Rectangle bounds) noexcept
+    : bounds_{ bounds } {
+}
+
+const Rectangle& Building::GetBounds() const noexcept {
+    return bounds_;
+}
+
+Office::Office(Id id, Point position, Offset offset) noexcept
+    : id_{ std::move(id) }
+    , position_{ position }
+    , offset_{ offset } {
+}
+
+const Office::Id& Office::GetId() const noexcept {
+    return id_;
+}
+
+Point Office::GetPosition() const noexcept {
+    return position_;
+}
+
+Offset Office::GetOffset() const noexcept {
+    return offset_;
+}
+
+Map::Map(Id id, std::string name) noexcept
+    : id_(std::move(id))
+    , name_(std::move(name)) {
+}
+
+const Map::Id& Map::GetId() const noexcept {
+    return id_;
+}
+
+const std::string& Map::GetName() const noexcept {
+    return name_;
+}
+
+const Map::Buildings& Map::GetBuildings() const noexcept {
+    return buildings_;
+}
+
+const Map::Roads& Map::GetRoads() const noexcept {
+    return roads_;
+}
+
+const Map::Offices& Map::GetOffices() const noexcept {
+    return offices_;
+}
+
+void Map::AddRoad(const Road& road) {
+    roads_.emplace_back(road);
+}
+
+void Map::AddBuilding(const Building& building) {
+    buildings_.emplace_back(building);
+}
+
+void Map::AddSpecificMapDogSpeed(double speed) {
+    specific_map_dog_speed_ = speed;
+}
+
+void Map::AddSpecificBagCapacity(std::uint64_t bag_capacity) {
+    bag_capacity_ = bag_capacity;
+}
+
+double Map::GetSpecificMapDogSpeed() const {
+    return specific_map_dog_speed_;
+}
+
+std::uint64_t Map::GetSpecificBagCapacity() const {
+    return bag_capacity_;
+}
+
+const std::vector<Point>& Map::GetRoadCrossses(const Road& road) const {
+    return roads_to_crosses_.at(road);
+}
+
+const std::pair<Road, Road>& Map::GetNeighbourRoad(const Point& cross) const {
+    return grid_.at(cross);
+}
+
+void Game::AddDefaultDogSpeed(double speed) {
+    default_dog_speed_ = speed;
+}
+
+void Game::AddDefaultBagCapacity(std::uint64_t def_bag_capacity) {
+    def_bag_capacity_ = def_bag_capacity;
+}
+
+double Game::GetDefaultDogSpeed() const {
+    return default_dog_speed_;
+}
+
+std::uint64_t Game::GetDefaultBagCapacity() const {
+    return def_bag_capacity_;
+}
+
+const Game::Maps& Game::GetMaps() const noexcept {
+    return maps_;
+}
+
+const Map* Game::FindMap(const Map::Id& id) const noexcept {
+    if (auto it = map_id_to_index_.find(id); it != map_id_to_index_.end()) {
+        return &maps_.at(it->second);
+    }
+    return nullptr;
+}
+
+LostObject::LostObject(double x, double y, std::uint64_t id, int type, int score_per_obj) : x_(x), y_(y), id_(id), type_(type), score_per_obj_(score_per_obj) {}
+double LostObject::GetX() const { return x_; }
+double LostObject::GetY() const { return y_; }
+std::uint64_t LostObject::GetId() const { return id_; }
+int LostObject::GetType() const { return type_; }
+int LostObject::GetScorePerObj() const { return score_per_obj_; }
+
+Dog::Dog(std::string name, std::uint64_t id) : name_(name), id_(id) {}
+bool Dog::operator==(const Dog& other) const { return name_ == other.name_ && id_ == other.id_; }
+const std::string& Dog::GetName() const { return name_; }
+std::uint64_t Dog::GetId() const { return id_; }
+std::uint64_t Dog::GetScore() const { return score_; }
+Position Dog::GetPos() const { return pos_; }
+Speed Dog::GetSpd() const { return spd_; }
+const std::string& Dog::GetDir() const { return dir_; }
+void Dog::SetDir(std::string dir) { dir_ = dir; }
+void Dog::SetSpeed(double vxx, double vyy) { spd_.vx = vxx; spd_.vy = vyy; }
+void Dog::Move(Position pos) { pos_ = pos; }
+const Road& Dog::GetRoad() const { return *r_; }
+void Dog::SetRoad(const Road* r) { r_ = r; }
+void Dog::AddLoot(const LostObject& obj) { bag_.push_back(obj); }
+const std::vector<LostObject>& Dog::GetBag() const { return bag_; }
+void Dog::DropLoot() {
+    for (const auto& item : bag_)
+    {
+        score_ += item.GetScorePerObj();
+    }
+    bag_.clear();
+}
+bool Dog::CanLoot(std::uint64_t max) { return bag_.size() < max; }
 
 }  // namespace model

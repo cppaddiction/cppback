@@ -3,6 +3,8 @@
 #include <boost/asio/dispatch.hpp>
 #include <iostream>
 
+using namespace std::literals;
+
 namespace http_server {
     void InitLogging(void (*foo) (logging::record_view const&, logging::formatting_ostream&))
     {
@@ -24,7 +26,6 @@ namespace http_server {
             beast::bind_front_handler(&SessionBase::Read, GetSharedThis()));
     }
     void SessionBase::Read() {
-        using namespace std::literals;
         //                                     (      Read                                )
         request_ = {};
         stream_.expires_after(30s);
@@ -46,7 +47,6 @@ namespace http_server {
                 {"data", boost::json::value{{"code", ec.value()}, {"text", temp.str()}, {"where", "read"}}} };
             BOOST_LOG_TRIVIAL(info) << logging::add_value(additional_data, custom_data);
             return;
-            //return ReportError(ec, "read"sv);
         }
         HandleRequest(std::move(request_));
     }
@@ -59,7 +59,6 @@ namespace http_server {
                 {"data", boost::json::value{{"code", ec.value()}, {"text", temp.str()}, {"where", "write"}}} };
             BOOST_LOG_TRIVIAL(info) << logging::add_value(additional_data, custom_data);
             return;
-            //return ReportError(ec, "write"sv);
         }
 
         if (close) {
@@ -71,8 +70,7 @@ namespace http_server {
         Read();
     }
     void SessionBase::Close() {
-        beast::error_code ec;
-        stream_.socket().shutdown(tcp::socket::shutdown_send, ec);
+        stream_.socket().shutdown(tcp::socket::shutdown_send);
     }
 } // namespace http_server
 

@@ -163,21 +163,21 @@ namespace http_handler {
     }
 
     std::string RequestHandler::urlDecode(const std::string& SRC) const {
-        std::string ret;
+        std::string res;
         char ch;
-        int i, ii;
-        for (i = 0; i < SRC.length(); i++) {
-            if (SRC[i] == '%') {
-                std::istringstream strm(SRC.substr(i + 1, 2)); strm >> std::hex >> ii;
-                ch = static_cast<char>(ii);
-                ret += ch;
-                i = i + 2;
+        int string_index, symbol_code;
+        for (string_index = 0; string_index < SRC.length(); string_index++) {
+            if (SRC[string_index] == '%') {
+                std::istringstream strm(SRC.substr(string_index + 1, 2)); strm >> std::hex >> symbol_code;
+                ch = static_cast<char>(symbol_code);
+                res += ch;
+                string_index = string_index + 2;
             }
             else {
-                ret += SRC[i];
+                res += SRC[string_index];
             }
         }
-        return (ret);
+        return (res);
     }
 
     std::variant<RequestHandler::StringResponse, RequestHandler::FileResponse> RequestHandler::HandleRequest(StringRequest&& req, const model::Game& gm) const {
@@ -323,35 +323,9 @@ namespace http_handler {
         builder.Value(CollectBuildings(m)).Key(OFFICES);
         builder.Value(CollectOffices(m));
 
-        /*
-        std::ostringstream dog_speed_data_strm;
-        if (loot_types::to_frontend_dog_speed_data.find(*(m->GetId())) != loot_types::to_frontend_dog_speed_data.end())
-        {
-            dog_speed_data_strm << loot_types::to_frontend_dog_speed_data[*(m->GetId())];
-        }
-
-        std::ostringstream bag_capacity_data_strm;
-        if (loot_types::to_frontend_bag_capacity_data.find(*(m->GetId())) != loot_types::to_frontend_bag_capacity_data.end())
-        {
-            bag_capacity_data_strm << loot_types::to_frontend_bag_capacity_data[*(m->GetId())];
-        }
-        */
-
         std::ostringstream strm; strm << loot_types::to_frontend_loot_type_data[*(m->GetId())];
         auto maps_parsed = json::Print(builder.EndDict().Build());
         auto maps_to_string = maps_parsed.substr(0, maps_parsed.size() - 1) + "," + LOOT_TYPES + ":" + strm.str() + "}";
-
-        /*
-        if (dog_speed_data_strm.str()!="")
-        {
-            maps_to_string = maps_to_string.substr(0, maps_to_string.size() - 1) + "," + MAP_DOG_SPEED + ":" + dog_speed_data_strm.str() + "}";
-        }
-
-        if (bag_capacity_data_strm.str() != "")
-        {
-            maps_to_string = maps_to_string.substr(0, maps_to_string.size() - 1) + "," + MAP_BAG_CAPACITY + ":" + bag_capacity_data_strm.str() + "}";
-        }
-        */
 
         return maps_to_string;
     }
@@ -517,10 +491,8 @@ namespace http_handler {
         {
             return true;
         }
-        else
-        {
-            return false;
-        }
+        
+        return false;
     }
 
     ApiHandler::StringResponse ApiHandler::HandleRequest(StringRequest&& req, const model::Game& gm) const {
@@ -548,11 +520,9 @@ namespace http_handler {
                 auto result = GetMaps(builder, gm);
                 return text_cache_response(http::status::ok, result, result.size(), Cache::NO_CACHE);
             }
-            else
-            {
-                auto result = InvalidMethod(builder, GET);
-                return text_invalid_cache_response(http::status::method_not_allowed, result, result.size(), Allow::GET, Cache::NO_CACHE);
-            }
+
+            auto result = InvalidMethod(builder, GET);
+            return text_invalid_cache_response(http::status::method_not_allowed, result, result.size(), Allow::GET, Cache::NO_CACHE);
         }
         else if (str_form.substr(0, 13) == MAPS_PATH_WITH_SLASH && str_form != MAPS_PATH_WITH_SLASH)
         {
@@ -568,17 +538,13 @@ namespace http_handler {
                     auto result = GetMapWithSpecificId(builder, m);
                     return text_cache_response(http::status::ok, result, result.size(), Cache::NO_CACHE);
                 }
-                else
-                {
-                    auto result = MapNotFound(builder);
-                    return text_cache_response(http::status::not_found, result, result.size(), Cache::NO_CACHE);
-                }
+
+                auto result = MapNotFound(builder);
+                return text_cache_response(http::status::not_found, result, result.size(), Cache::NO_CACHE);
             }
-            else
-            {
-                auto result = InvalidMethod(builder, GET_HEAD);
-                return text_invalid_cache_response(http::status::method_not_allowed, result, result.size(), Allow::GET_HEAD, Cache::NO_CACHE);
-            }
+
+            auto result = InvalidMethod(builder, GET_HEAD);
+            return text_invalid_cache_response(http::status::method_not_allowed, result, result.size(), Allow::GET_HEAD, Cache::NO_CACHE);
         }
         else if (str_form == JOIN_GAME_WITH_SLASH || str_form == JOIN_GAME_WITHOUT_SLASH)
         {
@@ -610,17 +576,15 @@ namespace http_handler {
                     auto result = AuthRequest(builder, *player.GetAuthToken(), player.GetDog().GetId());
                     return text_cache_response(http::status::ok, result, result.size(), Cache::NO_CACHE);
                 }
-                catch (...)
+                catch (const boost::system::system_error& ex) // failed json parse
                 {
                     auto result = BadRequest(INVALID_ARGUEMENT, JOIN_GAME_PARSE_ERROR);
                     return text_cache_response(http::status::bad_request, result, result.size(), Cache::NO_CACHE);
                 }
             }
-            else
-            {
-                auto result = InvalidMethod(builder, POST);
-                return text_invalid_cache_response(http::status::method_not_allowed, result, result.size(), Allow::POST, Cache::NO_CACHE);
-            }
+
+            auto result = InvalidMethod(builder, POST);
+            return text_invalid_cache_response(http::status::method_not_allowed, result, result.size(), Allow::POST, Cache::NO_CACHE);
         }
         else if (str_form == GET_PLAYERS_WITH_SLASH || str_form == GET_PLAYERS_WITHOUT_SLASH)
         {
@@ -636,7 +600,7 @@ namespace http_handler {
                         try {
                             auth_token = auth_token.substr(7, auth_token.size() - 7);
                         }
-                        catch (...)
+                        catch (const std::out_of_range& ex)
                         {
                             auth_token = "";
                         }
@@ -654,17 +618,15 @@ namespace http_handler {
                     auto result = GetPlayers(builder, player.GetSession().GetDogs());
                     return text_cache_response(http::status::ok, result, result.size(), Cache::NO_CACHE);
                 }
-                catch (...)
+                catch (const std::logic_error& ex)
                 {
                     auto result = PlayerNotFound(builder);
                     return text_cache_response(http::status::unauthorized, result, result.size(), Cache::NO_CACHE);
                 }
             }
-            else
-            {
-                auto result = InvalidMethod(builder, GET_HEAD);
-                return text_invalid_cache_response(http::status::method_not_allowed, result, result.size(), Allow::GET_HEAD, Cache::NO_CACHE);
-            }
+
+            auto result = InvalidMethod(builder, GET_HEAD);
+            return text_invalid_cache_response(http::status::method_not_allowed, result, result.size(), Allow::GET_HEAD, Cache::NO_CACHE);
         }
         else if (str_form == GAME_STATE_WITH_SLASH || str_form == GAME_STATE_WITHOUT_SLASH)
         {
@@ -680,7 +642,7 @@ namespace http_handler {
                         try {
                             auth_token = auth_token.substr(7, auth_token.size() - 7);
                         }
-                        catch (...)
+                        catch (const std::out_of_range& ex)
                         {
                             auth_token = "";
                         }
@@ -699,17 +661,15 @@ namespace http_handler {
                     auto result = GameState(builder, session.GetDogs(), session.GetLostObjects());
                     return text_cache_response(http::status::ok, result, result.size(), Cache::NO_CACHE);
                 }
-                catch (...)
+                catch (const std::logic_error& ex)
                 {
                     auto result = PlayerNotFound(builder);
                     return text_cache_response(http::status::unauthorized, result, result.size(), Cache::NO_CACHE);
                 }
             }
-            else
-            {
-                auto result = InvalidMethod(builder, GET_HEAD);
-                return text_invalid_cache_response(http::status::method_not_allowed, result, result.size(), Allow::GET_HEAD, Cache::NO_CACHE);
-            }
+
+            auto result = InvalidMethod(builder, GET_HEAD);
+            return text_invalid_cache_response(http::status::method_not_allowed, result, result.size(), Allow::GET_HEAD, Cache::NO_CACHE);
         }
         else if (str_form == ACTION_WITH_SLASH || str_form == ACTION_WITHOUT_SLASH)
         {
@@ -725,7 +685,7 @@ namespace http_handler {
                         try {
                             auth_token = auth_token.substr(7, auth_token.size() - 7);
                         }
-                        catch (...)
+                        catch (const std::out_of_range& ex)
                         {
                             auth_token = "";
                         }
@@ -765,23 +725,21 @@ namespace http_handler {
                         auto result = MoveRequestOrTimeTickRequest(builder);
                         return text_cache_response(http::status::ok, result, result.size(), Cache::NO_CACHE);
                     }
-                    catch (...)
+                    catch (const boost::system::system_error& ex) // failed json parse
                     {
                         auto result = BadRequest(INVALID_ARGUEMENT, GAME_ACTION_PARSE_ERROR_OR_CONTENT_TYPE_ERROR);
                         return text_cache_response(http::status::bad_request, result, result.size(), Cache::NO_CACHE);
                     }
                 }
-                catch (...)
+                catch (const std::logic_error& ex)
                 {
                     auto result = PlayerNotFound(builder);
                     return text_cache_response(http::status::unauthorized, result, result.size(), Cache::NO_CACHE);
                 }
             }
-            else
-            {
-                auto result = InvalidMethod(builder, POST);
-                return text_invalid_cache_response(http::status::method_not_allowed, result, result.size(), Allow::POST, Cache::NO_CACHE);
-            }
+
+            auto result = InvalidMethod(builder, POST);
+            return text_invalid_cache_response(http::status::method_not_allowed, result, result.size(), Allow::POST, Cache::NO_CACHE);
         }
         else if (str_form == GAME_TICK_WITH_SLASH || str_form == GAME_TICK_WITHOUT_SLASH)
         {
@@ -817,17 +775,15 @@ namespace http_handler {
                     auto result = MoveRequestOrTimeTickRequest(builder);
                     return text_cache_response(http::status::ok, result, result.size(), Cache::NO_CACHE);
                 }
-                catch (...)
+                catch (...) // std::invalid_argument (bad request) or boost::system::system_error (failed json parse)
                 {
                     auto result = BadRequest(INVALID_ARGUEMENT, GAME_TICK_PARSE_ERROR_OR_CONTENT_TYPE_ERROR);
                     return text_cache_response(http::status::bad_request, result, result.size(), Cache::NO_CACHE);
                 }
             }
-            else
-            {
-                auto result = InvalidMethod(builder, POST);
-                return text_invalid_cache_response(http::status::method_not_allowed, result, result.size(), Allow::POST, Cache::NO_CACHE);
-            }
+
+            auto result = InvalidMethod(builder, POST);
+            return text_invalid_cache_response(http::status::method_not_allowed, result, result.size(), Allow::POST, Cache::NO_CACHE);
         }
         else
         {
@@ -843,20 +799,20 @@ namespace http_handler {
     }
 
     std::string ApiHandler::urlDecode(const std::string& SRC) const {
-        std::string ret;
+        std::string res;
         char ch;
-        int i, ii;
-        for (i = 0; i < SRC.length(); i++) {
-            if (SRC[i] == '%') {
-                std::istringstream strm(SRC.substr(i + 1, 2)); strm >> std::hex >> ii;
-                ch = static_cast<char>(ii);
-                ret += ch;
-                i = i + 2;
+        int string_index, symbol_code;
+        for (string_index = 0; string_index < SRC.length(); string_index++) {
+            if (SRC[string_index] == '%') {
+                std::istringstream strm(SRC.substr(string_index + 1, 2)); strm >> std::hex >> symbol_code;
+                ch = static_cast<char>(symbol_code);
+                res += ch;
+                string_index = string_index + 2;
             }
             else {
-                ret += SRC[i];
+                res += SRC[string_index];
             }
         }
-        return (ret);
+        return (res);
     }
 }  // namespace http_handler
