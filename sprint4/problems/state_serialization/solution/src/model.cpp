@@ -472,7 +472,7 @@ void SessionManager::UpdateAllSessions(std::uint64_t time, loot_gen::LootGenerat
     }
 }
 
-const std::vector<std::shared_ptr<GameSession>>& SessionManager::GetAllSessions() const { return active_sessions_; }
+std::vector<std::shared_ptr<GameSession>> SessionManager::GetAllSessions() const { return active_sessions_; }
 
 void SessionManager::ClearSessions() { active_sessions_.clear(); }
 void SessionManager::AddSession(std::shared_ptr<GameSession> sptr) { active_sessions_.push_back(sptr); }
