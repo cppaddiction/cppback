@@ -243,7 +243,7 @@ public:
     }
     
     void Save(const model::SessionManager& sm, const app::Players& players) const override {
-        std::ofstream out{ temp_path_ };
+        std::ofstream out{ save_path_ };
         OutputArchive output_archive{ out };
         const auto& sessions = sm.GetAllSessions();
         output_archive << sessions.size();
@@ -253,11 +253,11 @@ public:
         }
         output_archive << serialization::PlayersRepr{ players };
         out.close();
-        std::filesystem::rename(temp_path_, save_path_);
+        //std::filesystem::rename(temp_path_, save_path_);
     }
 private:
 	std::string save_path_;
     std::uint64_t save_period_;
     std::uint64_t time_since_save_ = 0;
-    std::string temp_path_ = save_path_ + "temp";
+    //std::string temp_path_ = save_path_ + "temp";
 };
