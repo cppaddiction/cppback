@@ -65,7 +65,6 @@ namespace app {
         Player& FindByToken(Token token);
         void SyncronizeSession();
         const std::unordered_map<Token, Player, util::TaggedHasher<Token>>& GetPlayersByToken() const;
-        void SetPlayersByToken(std::unordered_map<Token, Player, util::TaggedHasher<Token>>&& players_by_token);
     private:
         std::unordered_map<Token, Player, util::TaggedHasher<Token>> players_by_token_;
     };

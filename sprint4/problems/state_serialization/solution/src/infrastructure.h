@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include <filesystem>
+#include <mutex>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/unordered_map.hpp>
 #include <boost/archive/text_iarchive.hpp>
@@ -234,7 +235,7 @@ public:
             {
                 sm.AddSession(session_ptr);
             }
-            players.SetPlayersByToken(std::move(const_cast<std::unordered_map<app::Token, app::Player, util::TaggedHasher<app::Token>>&>(restored_players.GetPlayersByToken())));
+            players = restored_players;
             in.close();
             return true;
         }
@@ -246,6 +247,7 @@ public:
     }
     
     void Save(const model::SessionManager& sm, const app::Players& players) const override {
+        std::lock_guard<std::mutex> lock(m_);
         std::ofstream out{ save_path_ };
         OutputArchive output_archive{ out };
         const auto& sessions = sm.GetAllSessions();
@@ -262,5 +264,6 @@ private:
 	std::string save_path_;
     std::uint64_t save_period_;
     std::uint64_t time_since_save_ = 0;
+    mutable std::mutex m_;
     //std::string temp_path_ = save_path_.substr(0, save_path_.find_last_of('.')) + "temp" + save_path_.substr(save_path_.find_last_of('.'));
 };

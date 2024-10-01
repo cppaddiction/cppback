@@ -69,9 +69,6 @@ namespace app {
     const std::unordered_map<Token, Player, util::TaggedHasher<Token>>& Players::GetPlayersByToken() const {
         return players_by_token_;
     }
-    void Players::SetPlayersByToken(std::unordered_map<Token, Player, util::TaggedHasher<Token>>&& players_by_token) {
-        players_by_token_ = std::move(players_by_token);
-    }
     Player& Players::FindByToken(Token token)
     {
         if (auto search = players_by_token_.find(token); search != players_by_token_.end())
