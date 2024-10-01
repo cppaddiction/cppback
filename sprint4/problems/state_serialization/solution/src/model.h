@@ -254,8 +254,6 @@ class GameSession {
     const std::string VALUE = "value";
 
 public:
-    GameSession(const GameSession& other) = default;
-    GameSession(GameSession&& other) = default;
     GameSession(const Map* map, std::uint64_t id);
     void AddDog(Dog d);
     Dog& FindDog(std::string name, std::uint64_t id);
@@ -287,6 +285,24 @@ public:
     const std::vector<std::shared_ptr<GameSession>>& GetAllSessions() const;
     void ClearSessions();
     void AddSession(std::shared_ptr<GameSession> sptr);
+private:
+    std::vector<std::shared_ptr<GameSession>> active_sessions_;
+};
+
+class HelpSessionManager {
+public:
+    const std::vector<std::shared_ptr<GameSession>>& GetAllSessions() const { return active_sessions_; }
+    void AddSession(std::shared_ptr<GameSession> sptr) { active_sessions_.push_back(sptr); }
+    std::shared_ptr<GameSession> FindSession(const Map* m, uint64_t session_id) const
+    {
+        for (auto session : active_sessions_)
+        {
+            if (m->GetId() == (session->GetMap()).GetId() && session_id == session->GetId())
+            {
+                return session;
+            }
+        }
+    }
 private:
     std::vector<std::shared_ptr<GameSession>> active_sessions_;
 };

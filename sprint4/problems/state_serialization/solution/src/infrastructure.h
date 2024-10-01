@@ -146,7 +146,7 @@ namespace serialization {
 
         explicit PlayerRepr(const app::Player& player) : dog_(player.GetDog()), token_(*player.GetAuthToken()), map_(*player.GetSession().GetMap().GetId()), session_id_(player.GetSession().GetId()) {}
         
-        [[nodiscard]] app::Player Restore(const model::Game& game, const model::SessionManager& sm) const {
+        [[nodiscard]] app::Player Restore(const model::Game& game, const model::HelpSessionManager& sm) const {
             const model::Map* map = game.FindMap(model::Map::Id{ map_ });
             return app::Player{ dog_.Restore(game), sm.FindSession(map, session_id_), app::Token{token_}};
         }
@@ -178,7 +178,7 @@ namespace serialization {
             }
         }
 
-        [[nodiscard]] app::Players Restore(const model::Game& game, const model::SessionManager& sm) const {
+        [[nodiscard]] app::Players Restore(const model::Game& game, const model::HelpSessionManager& sm) const {
             app::Players players;
             for (auto it = players_by_token_.begin(); it != players_by_token_.end(); it++)
             {
@@ -218,19 +218,22 @@ public:
         std::ifstream in{ save_path_ };
         InputArchive input_archive{ in };
         try {
-            model::SessionManager smanager(game.GetMaps());
-            smanager.ClearSessions();
+            model::HelpSessionManager smanager;
             size_t sessions_count; input_archive >> sessions_count;
             for (int i=0; i<sessions_count; i++)
             {
                 serialization::SessionRepr srepr;
                 input_archive >> srepr;
-                smanager.AddSession(std::make_shared<model::GameSession>(std::move(srepr.Restore(game))));
+                smanager.AddSession(std::make_shared<model::GameSession>(srepr.Restore(game)));
             }
             serialization::PlayersRepr prepr;
             input_archive >> prepr;
             const auto& restored_players = prepr.Restore(game, smanager);
-            sm = smanager;
+            sm.ClearSessions();
+            for (auto session_ptr : smanager.GetAllSessions())
+            {
+                sm.AddSession(session_ptr);
+            }
             players.SetPlayersByToken(std::move(const_cast<std::unordered_map<app::Token, app::Player, util::TaggedHasher<app::Token>>&>(restored_players.GetPlayersByToken())));
             in.close();
             return true;
