@@ -773,7 +773,7 @@ namespace http_handler {
                     sm_.UpdateAllSessions(time, lg_);
                     players_.SyncronizeSession();
                     listener_->OnTick(time, sm_, players_);
-                    auto result = MoveRequestOrTimeTickRequest(builder);
+                    std::string result = "{}";/*MoveRequestOrTimeTickRequest(builder);*/
                     return text_cache_response(http::status::ok, result, result.size(), Cache::NO_CACHE);
                 }
                 catch (...) // std::invalid_argument (bad request) or boost::system::system_error (failed json parse)
