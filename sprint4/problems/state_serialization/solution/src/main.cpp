@@ -227,7 +227,7 @@ int main(int argc, const char* argv[]) {
                     ioc.run();    
                 });
 
-            if ((*args).save_path != "" && (*args).save_period == 0)
+            if ((*args).save_path != "")
             {
                 serializing_listener.Save(sm, players);
             }

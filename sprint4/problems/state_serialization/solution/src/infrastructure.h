@@ -259,5 +259,5 @@ private:
 	std::string save_path_;
     std::uint64_t save_period_;
     std::uint64_t time_since_save_ = 0;
-    std::string temp_path_ = save_path_ + "temp";
+    std::string temp_path_ = save_path_.substr(0, save_path_.find_last_of('.')) + "temp" + save_path_.substr(save_path_.find_last_of('.'));
 };
