@@ -12,8 +12,6 @@
 #include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp>
 #include <boost/algorithm/string.hpp>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
 #include <boost/json.hpp>
 #include "app.h"
 
@@ -216,7 +214,7 @@ namespace http_handler {
         std::string PlayerNotFound(json::Builder& builder) const;
         std::string GetPlayers(json::Builder& builder, const std::vector<model::Dog>& dogs) const;
         std::string GameState(json::Builder& builder, const std::vector<model::Dog>& dogs, const std::unordered_map<std::uint64_t, model::LostObject>& lost_objects) const;
-        std::string MoveRequestOrTimeTickRequest(json::Builder& builder) const;
+        //std::string MoveRequestOrTimeTickRequest(json::Builder& builder) const;
         void Tick(std::uint64_t time) const;
 
     private:
