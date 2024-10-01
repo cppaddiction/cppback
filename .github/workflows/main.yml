@@ -13,33 +13,6 @@ permissions:
 
 
 jobs:
-  sprint_3:
-    runs-on: ubuntu-22.04
-    steps:
-
-      - name: Checkout code & tests
-        uses: actions/checkout@v3
-        with:
-          submodules: true
-
-      - name: Install dependencies
-        run: |
-          pip uninstall conan -y
-          pip install -U conan==1.59.0
-          pip install -r requirements.txt
-          pip show pytest
-
-      - name: run tests sprint3 scores
-        run: |
-          cd cpp-backend-tests-practicum/scripts/sprint3
-          ./scores/run.sh
-
-      - name: Publish XML reports
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()
-        with:
-          junit_files: ${{ github.workspace }}/*.xml
-
   sprint_4:
     runs-on: ubuntu-22.04
     steps:
