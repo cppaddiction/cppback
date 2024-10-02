@@ -283,7 +283,7 @@ public:
     void ProcessHorizontalRoad(model::Dog& d, const model::Road current_road, model::Position& pos, const model::Speed spd, const std::string& dir, double time_sec, const model::Map& m);
     void ProcessVerticalRoad(model::Dog& d, const model::Road current_road, model::Position& pos, const model::Speed spd, const std::string& dir, double time_sec, const model::Map& m);
     void SetLootCount(int loot_count) { loot_count_ = loot_count; }
-    void RemoveDog(std::string name, std::uint64_t id)
+    void RemoveDog(std::string name, std::uint64_t id);
 private:
     const Map* map_;
     std::uint64_t id_;
