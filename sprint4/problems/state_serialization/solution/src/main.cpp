@@ -164,18 +164,7 @@ int main(int argc, const char* argv[]) {
             const unsigned num_threads = std::thread::hardware_concurrency();
             net::io_context ioc(num_threads);
             auto api_strand = net::make_strand(ioc);
-            // 3. Добавляем асинхронный обработчик сигналов SIGINT и SIGTERM
-            // Подписываемся на сигналы и при их получении завершаем работу сервера
-            net::signal_set signals(ioc, SIGINT, SIGTERM);
-            signals.async_wait([&ioc](const sys::error_code& ec, [[maybe_unused]] int signal_number) {
-                if (!ec) {
-                    ioc.stop();
-                    auto tick = boost::posix_time::microsec_clock::local_time();
-                    boost::json::value custom_data{ {"message", "server exited"}, {"timestamp", to_iso_extended_string(tick)}, {"data", boost::json::value{{"code", 0}}} };
-                    BOOST_LOG_TRIVIAL(info) << logging::add_value(additional_data, custom_data);
-                    return EXIT_SUCCESS;
-                }
-                });
+
             auto serializing_listener = SerializingListener{ (*args).save_path, (*args).save_period };
 
             if ((*args).save_path != "" && std::filesystem::exists((*args).save_path))
@@ -189,6 +178,23 @@ int main(int argc, const char* argv[]) {
                     return EXIT_FAILURE;
                 }
             }
+
+            // 3. Добавляем асинхронный обработчик сигналов SIGINT и SIGTERM
+            // Подписываемся на сигналы и при их получении завершаем работу сервера
+            net::signal_set signals(ioc, SIGINT, SIGTERM);
+            signals.async_wait([&ioc, &serializing_listener, &sm, &players, &args](const sys::error_code& ec, [[maybe_unused]] int signal_number) {
+                if (!ec) {
+                    ioc.stop();
+                    auto tick = boost::posix_time::microsec_clock::local_time();
+                    boost::json::value custom_data{ {"message", "server exited"}, {"timestamp", to_iso_extended_string(tick)}, {"data", boost::json::value{{"code", 0}}} };
+                    BOOST_LOG_TRIVIAL(info) << logging::add_value(additional_data, custom_data);
+                    if ((*args).save_path != "")
+                    {
+                        serializing_listener.Save(sm, players);
+                    }
+                    return EXIT_SUCCESS;
+                }
+                });
 
             auto api_handler = http_handler::ApiHandler{ game, players, sm, (*args).tick_period, (*args).randomize_spawn_points, lg, serializing_listener };
             // 4. Создаём обработчик HTTP-запросов и связываем его с моделью игры
