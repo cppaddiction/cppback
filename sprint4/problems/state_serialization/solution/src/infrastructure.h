@@ -10,26 +10,26 @@
 #include <boost/archive/text_oarchive.hpp>
 
 namespace model {
-	template <typename Archive>
-	void serialize(Archive& ar, model::Position& pos, [[maybe_unused]] const unsigned version) {
-		ar& pos.x;
-		ar& pos.y;
-	}
+    template <typename Archive>
+    void serialize(Archive& ar, model::Position& pos, [[maybe_unused]] const unsigned version) {
+        ar& pos.x;
+        ar& pos.y;
+    }
 
-	template <typename Archive>
-	void serialize(Archive& ar, model::Speed& spd, [[maybe_unused]] const unsigned version) {
-		ar& spd.vx;
-		ar& spd.vy;
-	}
+    template <typename Archive>
+    void serialize(Archive& ar, model::Speed& spd, [[maybe_unused]] const unsigned version) {
+        ar& spd.vx;
+        ar& spd.vy;
+    }
 
-	template <typename Archive>
-	void serialize(Archive& ar, model::LostObject& lobj, [[maybe_unused]] const unsigned version) {
-		ar& lobj.x_;
-		ar& lobj.y_;
-		ar& lobj.id_;
-		ar& lobj.type_;
-		ar& lobj.score_per_obj_;
-	}
+    template <typename Archive>
+    void serialize(Archive& ar, model::LostObject& lobj, [[maybe_unused]] const unsigned version) {
+        ar& lobj.x_;
+        ar& lobj.y_;
+        ar& lobj.id_;
+        ar& lobj.type_;
+        ar& lobj.score_per_obj_;
+    }
 }
 
 namespace app {
@@ -52,11 +52,13 @@ namespace serialization {
             , spd_(dog.GetSpd())
             , dir_(dog.GetDir())
             , bag_(dog.GetBag())
-            , score_(dog.GetScore()), map_(dog.GetRoad().GetMap()), road_id_(*dog.GetRoad().GetId()) {
+            , score_(dog.GetScore()) 
+            , map_(dog.GetRoad().GetMap())
+            , road_id_(*dog.GetRoad().GetId()) {
         }
 
         [[nodiscard]] model::Dog Restore(const model::Game& game) const {
-            model::Dog dog{name_, id_};
+            model::Dog dog{ name_, id_ };
             dog.Move(pos_);
             const model::Map* map = game.FindMap(model::Map::Id{ map_ });
             const model::Road* road = map->FindRoad(model::Road::Id{ road_id_ });
@@ -92,14 +94,14 @@ namespace serialization {
         std::vector<model::LostObject> bag_;
         std::uint64_t score_ = 0;
         std::string map_;
-        std::uint64_t road_id_ = 0;
+        std::uint64_t road_id_;
     };
 
     class SessionRepr {
     public:
         SessionRepr() = default;
 
-        explicit SessionRepr(const model::GameSession& session) 
+        explicit SessionRepr(const model::GameSession& session)
             : id_(session.GetId()),
             lost_objects_(session.GetLostObjects()),
             loot_count_(session.GetLootCount()), map_(*session.GetMap().GetId())
@@ -108,7 +110,7 @@ namespace serialization {
                 dogs_.emplace_back(dog);
         }
 
-        [[nodiscard]] model::GameSession Restore(const model::Game& game) const {  
+        [[nodiscard]] model::GameSession Restore(const model::Game& game) const {
             const model::Map* map = game.FindMap(model::Map::Id{ map_ });
             model::GameSession session{ map, id_ };
             for (const auto& dog : dogs_)
@@ -119,7 +121,7 @@ namespace serialization {
             {
                 session.AddLostObject(it->first, it->second);
             }
-            session.AddLootCount(loot_count_);
+            session.SetLootCount(loot_count_);
             return session;
         }
 
@@ -145,10 +147,10 @@ namespace serialization {
         PlayerRepr() = default;
 
         explicit PlayerRepr(const app::Player& player) : dog_(player.GetDog()), token_(*player.GetAuthToken()), map_(*player.GetSession().GetMap().GetId()), session_id_(player.GetSession().GetId()) {}
-        
+
         [[nodiscard]] app::Player Restore(const model::Game& game, const model::SessionManager& sm) const {
             const model::Map* map = game.FindMap(model::Map::Id{ map_ });
-            return app::Player{ dog_.Restore(game), sm.FindSession(map, session_id_), app::Token{token_}};
+            return app::Player{ dog_.Restore(game), sm.FindSession(map, session_id_), app::Token{token_} };
         }
 
         template <typename Archive>
@@ -201,8 +203,8 @@ class SerializingListener : public app::ApplicationListener {
     using InputArchive = boost::archive::text_iarchive;
     using OutputArchive = boost::archive::text_oarchive;
 public:
-	SerializingListener(std::string save_path, std::uint64_t save_period) : save_path_(save_path), save_period_(save_period) {}
-	void OnTick(std::uint64_t delta, const model::SessionManager& sm, const app::Players& players) override {
+    SerializingListener(std::string save_path, std::uint64_t save_period) : save_path_(save_path), save_period_(save_period) {}
+    void OnTick(std::uint64_t delta, const model::SessionManager& sm, const app::Players& players) override {
         if (save_path_ != "" && save_period_ != 0)
         {
             time_since_save_ += delta;
@@ -212,8 +214,8 @@ public:
                 time_since_save_ = 0;
             }
         }
-	}
-    
+    }
+
     bool Restore(model::SessionManager& sm, app::Players& players, const model::Game& game) const override {
         std::ifstream in{ save_path_ };
         InputArchive input_archive{ in };
@@ -221,7 +223,7 @@ public:
         sm.ClearSessions();
         try {
             size_t sessions_count; input_archive >> sessions_count;
-            for (int i=0; i<sessions_count; i++)
+            for (int i = 0; i < sessions_count; i++)
             {
                 serialization::SessionRepr srepr;
                 input_archive >> srepr;
@@ -229,8 +231,7 @@ public:
             }
             serialization::PlayersRepr prepr;
             input_archive >> prepr;
-            const auto& restored_players = prepr.Restore(game, sm);
-            players = restored_players;
+            players = prepr.Restore(game, sm);
             in.close();
             return true;
         }
@@ -244,7 +245,7 @@ public:
             return false;
         }
     }
-    
+
     void Save(const model::SessionManager& sm, const app::Players& players) const override {
         std::ofstream out{ temp_path_ };
         OutputArchive output_archive{ out };
@@ -259,7 +260,7 @@ public:
         std::filesystem::rename(temp_path_, save_path_);
     }
 private:
-	std::string save_path_;
+    std::string save_path_;
     std::uint64_t save_period_;
     std::uint64_t time_since_save_ = 0;
     std::string temp_path_ = save_path_ + "temp";

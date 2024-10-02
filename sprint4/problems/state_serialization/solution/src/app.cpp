@@ -52,22 +52,28 @@ namespace app {
         dog_ = (session_->FindDog(dog_.GetName(), dog_.GetId()));
     }
     const model::GameSession& Player::GetSession() const { return *session_; }
-    std::shared_ptr<model::GameSession> Player::GetSessionPtr() const { return session_; }
     Token Player::GetAuthToken() const { return token_; }
 
     Player& Players::Addplayer(model::Dog dog, std::shared_ptr<model::GameSession> session)
     {
         auto token = std::make_unique<PlayerToken>()->GetToken();
-        /*players_by_info_.try_emplace(PlayerInfo{dog.GetId(), *((session->GetMap()).GetId())}, dog, session, token);*/
+        players_by_info_.try_emplace(PlayerInfo{ dog.GetId(), *((session->GetMap()).GetId()) }, dog, session, token);
         players_by_token_.try_emplace(token, dog, session, token);
         return players_by_token_[token];
     }
-    void Players::Addplayer(Token token, Player player)
-    {
+    void Players::Addplayer(Token token, Player player) {
         players_by_token_.try_emplace(token, player);
     }
-    const std::unordered_map<Token, Player, util::TaggedHasher<Token>>& Players::GetPlayersByToken() const {
-        return players_by_token_;
+    Player& Players::FindByDogIdAndMapId(std::uint64_t dog_id, std::string map_id)
+    {
+        if (auto search = players_by_info_.find(PlayerInfo{ dog_id, map_id }); search != players_by_info_.end())
+        {
+            return players_by_token_[(search->second).GetAuthToken()];
+        }
+        else
+        {
+            throw std::logic_error("No such player");
+        }
     }
     Player& Players::FindByToken(Token token)
     {

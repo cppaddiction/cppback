@@ -12,6 +12,8 @@
 #include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 #include <boost/json.hpp>
 #include "app.h"
 
@@ -172,7 +174,7 @@ namespace http_handler {
         };
 
     public:
-        explicit ApiHandler(model::Game& game, app::Players& players, const model::SessionManager& sm, std::uint64_t tick_period, bool randomize_spawn_points, loot_gen::LootGenerator lg, app::ApplicationListener& listener)
+        explicit ApiHandler(model::Game& game, app::Players& players, model::SessionManager& sm, std::uint64_t tick_period, bool randomize_spawn_points, loot_gen::LootGenerator lg, app::ApplicationListener& listener)
             : game_{ game }, players_(players), sm_(sm), tick_period_(tick_period), randomize_spawn_points_(randomize_spawn_points), lg_(lg), listener_(&listener) {
         }
 
@@ -214,17 +216,17 @@ namespace http_handler {
         std::string PlayerNotFound(json::Builder& builder) const;
         std::string GetPlayers(json::Builder& builder, const std::vector<model::Dog>& dogs) const;
         std::string GameState(json::Builder& builder, const std::vector<model::Dog>& dogs, const std::unordered_map<std::uint64_t, model::LostObject>& lost_objects) const;
-        //std::string MoveRequestOrTimeTickRequest(json::Builder& builder) const;
+        std::string MoveRequestOrTimeTickRequest(json::Builder& builder) const;
         void Tick(std::uint64_t time) const;
 
     private:
         model::Game& game_;
         app::Players& players_;
-        const model::SessionManager& sm_;
+        model::SessionManager& sm_;
         std::uint64_t tick_period_;
         bool randomize_spawn_points_;
         loot_gen::LootGenerator lg_;
-        app::ApplicationListener* listener_=nullptr;
+        app::ApplicationListener* listener_;
     };
 
     class RequestHandler : public std::enable_shared_from_this<RequestHandler> {

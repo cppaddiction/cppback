@@ -6,7 +6,7 @@ using namespace std::literals;
 
 namespace json_loader {
 
-std::uint64_t road_ids = 0;
+    std::uint64_t road_ids = 0;
 
 void LoadMaps(const json::array& maps, model::Game& game)
 {
@@ -90,11 +90,11 @@ void LoadRoads(const json::array& roads, model::Map& map)
         ::boost::json::value const* const p_value{ r.as_object().if_contains(X1) };
         if (p_value)
         {
-            map.AddRoad(model::Road{ model::Road::HORIZONTAL, model::Point{static_cast<int>(r.as_object().at(X0).as_int64()), static_cast<int>(r.as_object().at(Y0).as_int64())},  static_cast<int>(r.as_object().at(X1).as_int64()), *map.GetId(), model::Road::Id {road_ids++} });
+            map.AddRoad(model::Road{ model::Road::HORIZONTAL, model::Point{static_cast<int>(r.as_object().at(X0).as_int64()), static_cast<int>(r.as_object().at(Y0).as_int64())},  static_cast<int>(r.as_object().at(X1).as_int64()), *map.GetId(), model::Road::Id{road_ids++} });
         }
         else
         {
-            map.AddRoad(model::Road{ model::Road::VERTICAL, model::Point{static_cast<int>(r.as_object().at(X0).as_int64()), static_cast<int>(r.as_object().at(Y0).as_int64())},  static_cast<int>(r.as_object().at(Y1).as_int64()), *map.GetId(), model::Road::Id {road_ids++} });
+            map.AddRoad(model::Road{ model::Road::VERTICAL, model::Point{static_cast<int>(r.as_object().at(X0).as_int64()), static_cast<int>(r.as_object().at(Y0).as_int64())},  static_cast<int>(r.as_object().at(Y1).as_int64()), *map.GetId(), model::Road::Id{road_ids++} });
         }
     }
     map.CreateRoadGrid();

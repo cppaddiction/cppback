@@ -130,18 +130,18 @@ void MyFormatter(logging::record_view const& rec, logging::formatting_ostream& s
 }
 
 namespace {
-// Запускает функцию fn на n потоках, включая текущий
-template <typename Fn>
-void RunWorkers(unsigned n, const Fn& fn) {
-    n = std::max(1u, n);
-    std::vector<std::jthread> workers;
-    workers.reserve(n - 1);
-    // Запускаем n-1 рабочих потоков, выполняющих функцию fn
-    while (--n) {
-        workers.emplace_back(fn);
+    // Запускает функцию fn на n потоках, включая текущий
+    template <typename Fn>
+    void RunWorkers(unsigned n, const Fn& fn) {
+        n = std::max(1u, n);
+        std::vector<std::jthread> workers;
+        workers.reserve(n - 1);
+        // Запускаем n-1 рабочих потоков, выполняющих функцию fn
+        while (--n) {
+            workers.emplace_back(fn);
+        }
+        fn();
     }
-    fn();
-}
 
 }  // namespace
 
@@ -177,7 +177,7 @@ int main(int argc, const char* argv[]) {
                 }
                 });
             auto serializing_listener = SerializingListener{ (*args).save_path, (*args).save_period };
-            
+
             if ((*args).save_path != "" && std::filesystem::exists((*args).save_path))
             {
                 auto restore = serializing_listener.Restore(sm, players, game);
@@ -197,15 +197,15 @@ int main(int argc, const char* argv[]) {
 
             auto ticker = std::make_shared<Ticker>(api_strand, std::chrono::milliseconds((*args).tick_period),
                 [&api_handler](std::chrono::milliseconds delta) {
-                api_handler.Tick(delta.count());
-            }
+                    api_handler.Tick(delta.count());
+                }
             );
 
             if ((*args).tick_period)
             {
                 ticker->Start();
             }
-            
+
             const auto address = net::ip::make_address("0.0.0.0");
             constexpr net::ip::port_type port = 8080;
             http_handler::LoggingRequestHandler handler_cover([handler](auto&& req, auto&& send) {
@@ -224,7 +224,7 @@ int main(int argc, const char* argv[]) {
             BOOST_LOG_TRIVIAL(info) << logging::add_value(additional_data, custom_data);
             // 6. Запускаем обработку асинхронных операций
             RunWorkers(num_threads, [&ioc] {
-                    ioc.run();    
+                ioc.run();
                 });
 
             if ((*args).save_path != "")
@@ -237,7 +237,7 @@ int main(int argc, const char* argv[]) {
     catch (const std::exception& ex) {
         std::ostringstream temp; temp << ex.what();
         auto tick = boost::posix_time::microsec_clock::local_time();
-        boost::json::value custom_data{ {"message", "server exited"}, {"timestamp", to_iso_extended_string(tick)}, {"data", boost::json::value{{"code", EXIT_FAILURE}, {"exception", temp.str()}}}};
+        boost::json::value custom_data{ {"message", "server exited"}, {"timestamp", to_iso_extended_string(tick)}, {"data", boost::json::value{{"code", EXIT_FAILURE}, {"exception", temp.str()}}} };
         BOOST_LOG_TRIVIAL(info) << logging::add_value(additional_data, custom_data);
         return EXIT_FAILURE;
     }

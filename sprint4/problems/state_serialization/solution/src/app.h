@@ -3,7 +3,6 @@
 #include <random>
 #include <iostream>
 #include <unordered_map>
-#include <chrono>
 
 namespace app {
     using Token = util::Tagged<std::string, detail::TokenTag>;
@@ -40,7 +39,6 @@ namespace app {
         void SetSpeed(std::string dir, double game_default_speed);
         void SyncronizeSession();
         const model::GameSession& GetSession() const;
-        std::shared_ptr<model::GameSession> GetSessionPtr() const;
         Token GetAuthToken() const;
     private:
         model::Dog dog_;
@@ -49,7 +47,6 @@ namespace app {
     };
 
     class Players {
-    public:
         struct PlayerInfo {
             bool operator==(const PlayerInfo& other) const { return dog_id == other.dog_id && map_id == other.map_id; }
             std::uint64_t dog_id;
@@ -60,12 +57,15 @@ namespace app {
                 return std::hash<std::uint64_t>{}(pi.dog_id) + std::hash<std::string>{}(pi.map_id);
             }
         };
+    public:
         Player& Addplayer(model::Dog dog, std::shared_ptr<model::GameSession> session);
-        void Addplayer(Token token, Player player);
+        Player& FindByDogIdAndMapId(std::uint64_t dog_id, std::string map_id);
         Player& FindByToken(Token token);
         void SyncronizeSession();
-        const std::unordered_map<Token, Player, util::TaggedHasher<Token>>& GetPlayersByToken() const;
+        const std::unordered_map<Token, Player, util::TaggedHasher<Token>>& GetPlayersByToken() const { return players_by_token_; }
+        void Addplayer(Token token, Player player);
     private:
+        std::unordered_map<PlayerInfo, Player, PlayerInfoHasher> players_by_info_;
         std::unordered_map<Token, Player, util::TaggedHasher<Token>> players_by_token_;
     };
 

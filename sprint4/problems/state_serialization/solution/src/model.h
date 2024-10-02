@@ -63,10 +63,9 @@ class Road {
     };
 
 public:
-    using Id = util::Tagged<std::uint64_t, Road>;
     constexpr static HorizontalTag HORIZONTAL{};
     constexpr static VerticalTag VERTICAL{};
-
+    using Id = util::Tagged<std::uint64_t, Road>;
     Road(HorizontalTag, Point start, Coord end_x, std::string map, Id id) noexcept;
     Road(VerticalTag, Point start, Coord end_y, std::string map, Id id) noexcept;
     bool IsHorizontal() const noexcept;
@@ -74,8 +73,8 @@ public:
     Point GetStart() const noexcept;
     Point GetEnd() const noexcept;
     bool operator==(const Road& other) const;
-    const std::string& GetMap() const;
-    Id GetId() const;
+    std::string GetMap() const { return map_; }
+    Id GetId() const { return id_; }
 
 private:
     Point start_;
@@ -142,7 +141,16 @@ public:
     void CreateRoadGrid();
     const std::vector<Point>& GetRoadCrossses(const Road& road) const;
     const std::pair<Road, Road>& GetNeighbourRoad(const Point& cross) const;
-    const Road* FindRoad(Road::Id id) const;
+    const Road* FindRoad(model::Road::Id id) const {
+        for (const auto& road : roads_)
+        {
+            if (road.GetId() == id)
+            {
+                return &road;
+            }
+        }
+        return nullptr;
+    }
 
 private:
     using OfficeIdToIndex = std::unordered_map<Office::Id, size_t, util::TaggedHasher<Office::Id>>;
@@ -222,7 +230,7 @@ public:
     const std::vector<LostObject>& GetBag() const;
     void DropLoot();
     bool CanLoot(std::uint64_t max);
-    void SetScore(std::uint64_t score);
+    void SetScore(std::uint64_t score) { score_ = score; }
 
 private:
     std::string name_ = "";
@@ -267,10 +275,10 @@ public:
     int GetLootCount() const;
     void ProcessHorizontalRoad(model::Dog& d, const model::Road current_road, model::Position& pos, const model::Speed spd, const std::string& dir, double time_sec, const model::Map& m);
     void ProcessVerticalRoad(model::Dog& d, const model::Road current_road, model::Position& pos, const model::Speed spd, const std::string& dir, double time_sec, const model::Map& m);
-    void AddLootCount(int loot_count);
+    void SetLootCount(int loot_count) { loot_count_ = loot_count; }
 private:
-    const Map* map_ = nullptr;
-    std::uint64_t id_ = 0;
+    const Map* map_;
+    std::uint64_t id_;
     std::vector<Dog> dogs_;
     std::unordered_map<std::uint64_t, LostObject> lost_objects_;
     int loot_count_ = 0;
@@ -282,9 +290,9 @@ public:
     SessionManager(const std::vector<Map>& maps);
     std::shared_ptr<GameSession> FindSession(const Map* m, uint64_t session_id) const;
     void UpdateAllSessions(std::uint64_t time, loot_gen::LootGenerator lg) const;
-    std::vector<std::shared_ptr<GameSession>> GetAllSessions() const;
-    void ClearSessions();
-    void AddSession(std::shared_ptr<GameSession> sptr);
+    std::vector<std::shared_ptr<GameSession>> GetAllSessions() const { return active_sessions_; }
+    void ClearSessions() { active_sessions_.clear(); }
+    void AddSession(std::shared_ptr<GameSession> session) { active_sessions_.push_back(session); }
 private:
     std::vector<std::shared_ptr<GameSession>> active_sessions_;
 };

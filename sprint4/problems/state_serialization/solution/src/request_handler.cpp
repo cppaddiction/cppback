@@ -142,9 +142,12 @@ namespace http_handler {
 
     std::string RequestHandler::BadRequest() const
     {
-        json::Builder builder;
-        builder.StartDict().Key(CODE).Value(BAD_REQUEST_CODE).Key(MESSAGE).Value(BAD_REQUEST_MESSAGE);
-        return json::Print(builder.EndDict().Build());
+        boost::property_tree::ptree pt;
+        pt.put(CODE, BAD_REQUEST_CODE);
+        pt.put(MESSAGE, BAD_REQUEST_MESSAGE);
+        std::ostringstream strm;
+        boost::property_tree::json_parser::write_json(strm, pt);
+        return strm.str();
     }
 
     std::string RequestHandler::FileNotFound(json::Builder& builder) const
@@ -329,9 +332,12 @@ namespace http_handler {
 
     std::string ApiHandler::BadRequest() const
     {
-        json::Builder builder;
-        builder.StartDict().Key(CODE).Value(BAD_REQUEST_CODE).Key(MESSAGE).Value(BAD_REQUEST_MESSAGE);
-        return json::Print(builder.EndDict().Build());
+        boost::property_tree::ptree pt;
+        pt.put(CODE, BAD_REQUEST_CODE);
+        pt.put(MESSAGE, BAD_REQUEST_MESSAGE);
+        std::ostringstream strm;
+        boost::property_tree::json_parser::write_json(strm, pt);
+        return strm.str();
     }
 
     std::string ApiHandler::MapNotFound(json::Builder& builder) const
@@ -348,9 +354,12 @@ namespace http_handler {
 
     std::string ApiHandler::BadRequest(const std::string& code, const std::string& msg) const
     {
-        json::Builder builder;
-        builder.StartDict().Key(CODE).Value(code).Key(MESSAGE).Value(msg);
-        return json::Print(builder.EndDict().Build());
+        boost::property_tree::ptree pt;
+        pt.put(CODE, code);
+        pt.put(MESSAGE, msg);
+        std::ostringstream strm;
+        boost::property_tree::json_parser::write_json(strm, pt);
+        return strm.str();
     }
 
     std::string ApiHandler::AuthRequest(json::Builder& builder, const std::string& auth_token, int player_id) const
@@ -370,13 +379,13 @@ namespace http_handler {
         builder.StartDict().Key(CODE).Value(UNKNOWN_TOKEN).Key(MESSAGE).Value(PLAYER_NOT_FOUND_MESSAGE);
         return json::Print(builder.EndDict().Build());
     }
-    /*
+
     std::string ApiHandler::MoveRequestOrTimeTickRequest(json::Builder& builder) const
     {
         builder.StartDict();
         return json::Print(builder.EndDict().Build());
     }
-    */
+
     std::string ApiHandler::GetPlayers(json::Builder& builder, const std::vector<model::Dog>& dogs) const
     {
         builder.StartDict();
@@ -713,7 +722,7 @@ namespace http_handler {
                         auto move_dir = static_cast<std::string>(value.at(MOVE).as_string());
                         player.SetDir(move_dir);
                         player.SetSpeed(move_dir, game_.GetDefaultDogSpeed());
-                        std::string result = "{}";/*MoveRequestOrTimeTickRequest(builder);*/
+                        auto result = MoveRequestOrTimeTickRequest(builder);
                         return text_cache_response(http::status::ok, result, result.size(), Cache::NO_CACHE);
                     }
                     catch (const boost::system::system_error& ex) // failed json parse
@@ -764,7 +773,7 @@ namespace http_handler {
                     sm_.UpdateAllSessions(time, lg_);
                     players_.SyncronizeSession();
                     listener_->OnTick(time, sm_, players_);
-                    std::string result = "{}";/*MoveRequestOrTimeTickRequest(builder);*/
+                    auto result = MoveRequestOrTimeTickRequest(builder);
                     return text_cache_response(http::status::ok, result, result.size(), Cache::NO_CACHE);
                 }
                 catch (...) // std::invalid_argument (bad request) or boost::system::system_error (failed json parse)
