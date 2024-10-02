@@ -236,38 +236,72 @@ void GameSession::ProcessHorizontalRoad(model::Dog& d, const model::Road current
     else if (dir == "U" || dir == "D")
     {
         bool in_cross = false;
-        const auto& road_crosses = m.GetRoadCrossses(current_road);
-        for (const auto& cross : road_crosses)
-        {
-            double lb_x = cross.x - road_offset;
-            double rb_x = cross.x + road_offset;
-            double lb_y = cross.y - road_offset;
-            double rb_y = cross.y + road_offset;
-            if (lb_x <= pos.x && pos.x <= rb_x && lb_y <= pos.y && pos.y <= rb_y)
+        try {
+            const auto& road_crosses = m.GetRoadCrossses(current_road);
+            for (const auto& cross : road_crosses)
             {
-                const auto& crossed_roads = m.GetNeighbourRoad(cross);
-                const Road* r1 = &crossed_roads.first;
-                const Road* r2 = &crossed_roads.second;
-                if (current_road == crossed_roads.first)
+                double lb_x = cross.x - road_offset;
+                double rb_x = cross.x + road_offset;
+                double lb_y = cross.y - road_offset;
+                double rb_y = cross.y + road_offset;
+                if (lb_x <= pos.x && pos.x <= rb_x && lb_y <= pos.y && pos.y <= rb_y)
                 {
-                    d.SetRoad(r2);
-                }
-                else
-                {
-                    d.SetRoad(r1);
-                }
+                    const auto& crossed_roads = m.GetNeighbourRoad(cross);
+                    const Road* r1 = &crossed_roads.first;
+                    const Road* r2 = &crossed_roads.second;
+                    if (current_road == crossed_roads.first)
+                    {
+                        d.SetRoad(r2);
+                    }
+                    else
+                    {
+                        d.SetRoad(r1);
+                    }
 
-                const auto& crossed_road = d.GetRoad();
+                    const auto& crossed_road = d.GetRoad();
 
-                auto r2_st = crossed_road.GetStart();
-                auto r2_fn = crossed_road.GetEnd();
-                double lesser_r2_y = (r2_st.y < r2_fn.y ? r2_st.y : r2_fn.y) - road_offset;
-                double greater_r2_y = (r2_st.y > r2_fn.y ? r2_st.y : r2_fn.y) + road_offset;
+                    auto r2_st = crossed_road.GetStart();
+                    auto r2_fn = crossed_road.GetEnd();
+                    double lesser_r2_y = (r2_st.y < r2_fn.y ? r2_st.y : r2_fn.y) - road_offset;
+                    double greater_r2_y = (r2_st.y > r2_fn.y ? r2_st.y : r2_fn.y) + road_offset;
+                    if (dir == "U")
+                    {
+                        if (pos.y + spd.vy * time_sec <= lesser_r2_y)
+                        {
+                            pos.y = lesser_r2_y;
+                            d.SetSpeed(0.0, 0.0);
+                        }
+                        else
+                        {
+                            pos.y += (spd.vy * time_sec);
+                        }
+                    }
+                    else if (dir == "D")
+                    {
+                        if (pos.y + spd.vy * time_sec >= greater_r2_y)
+                        {
+                            pos.y = greater_r2_y;
+                            d.SetSpeed(0.0, 0.0);
+                        }
+                        else
+                        {
+                            pos.y += (spd.vy * time_sec);
+                        }
+                    }
+
+                    in_cross = true;
+                    break;
+                }
+            }
+            if (!in_cross)
+            {
+                double upper_bound = r1_st.y - road_offset;
+                double lower_bound = r1_st.y + road_offset;
                 if (dir == "U")
                 {
-                    if (pos.y + spd.vy * time_sec <= lesser_r2_y)
+                    if (pos.y + spd.vy * time_sec <= upper_bound)
                     {
-                        pos.y = lesser_r2_y;
+                        pos.y = upper_bound;
                         d.SetSpeed(0.0, 0.0);
                     }
                     else
@@ -275,11 +309,11 @@ void GameSession::ProcessHorizontalRoad(model::Dog& d, const model::Road current
                         pos.y += (spd.vy * time_sec);
                     }
                 }
-                else if (dir == "D")
+                else
                 {
-                    if (pos.y + spd.vy * time_sec >= greater_r2_y)
+                    if (pos.y + spd.vy * time_sec >= lower_bound)
                     {
-                        pos.y = greater_r2_y;
+                        pos.y = lower_bound;
                         d.SetSpeed(0.0, 0.0);
                     }
                     else
@@ -287,39 +321,10 @@ void GameSession::ProcessHorizontalRoad(model::Dog& d, const model::Road current
                         pos.y += (spd.vy * time_sec);
                     }
                 }
-
-                in_cross = true;
-                break;
             }
         }
-        if (!in_cross)
-        {
-            double upper_bound = r1_st.y - road_offset;
-            double lower_bound = r1_st.y + road_offset;
-            if (dir == "U")
-            {
-                if (pos.y + spd.vy * time_sec <= upper_bound)
-                {
-                    pos.y = upper_bound;
-                    d.SetSpeed(0.0, 0.0);
-                }
-                else
-                {
-                    pos.y += (spd.vy * time_sec);
-                }
-            }
-            else
-            {
-                if (pos.y + spd.vy * time_sec >= lower_bound)
-                {
-                    pos.y = lower_bound;
-                    d.SetSpeed(0.0, 0.0);
-                }
-                else
-                {
-                    pos.y += (spd.vy * time_sec);
-                }
-            }
+        catch (const std::out_of_range& ex) {
+            return;
         }
     }
 }
@@ -356,38 +361,72 @@ void GameSession::ProcessVerticalRoad(model::Dog& d, const model::Road current_r
     else if (dir == "L" || dir == "R")
     {
         bool in_cross = false;
-        const auto& road_crosses = m.GetRoadCrossses(current_road);
-        for (const auto& cross : road_crosses)
-        {
-            double lb_x = cross.x - road_offset;
-            double rb_x = cross.x + road_offset;
-            double lb_y = cross.y - road_offset;
-            double rb_y = cross.y + road_offset;
-            if (lb_x <= pos.x && pos.x <= rb_x && lb_y <= pos.y && pos.y <= rb_y)
+        try {
+            const auto& road_crosses = m.GetRoadCrossses(current_road);
+            for (const auto& cross : road_crosses)
             {
-                const auto& crossed_roads = m.GetNeighbourRoad(cross);
-                const Road* r1 = &crossed_roads.first;
-                const Road* r2 = &crossed_roads.second;
-                if (current_road == crossed_roads.first)
+                double lb_x = cross.x - road_offset;
+                double rb_x = cross.x + road_offset;
+                double lb_y = cross.y - road_offset;
+                double rb_y = cross.y + road_offset;
+                if (lb_x <= pos.x && pos.x <= rb_x && lb_y <= pos.y && pos.y <= rb_y)
                 {
-                    d.SetRoad(r2);
-                }
-                else
-                {
-                    d.SetRoad(r1);
-                }
+                    const auto& crossed_roads = m.GetNeighbourRoad(cross);
+                    const Road* r1 = &crossed_roads.first;
+                    const Road* r2 = &crossed_roads.second;
+                    if (current_road == crossed_roads.first)
+                    {
+                        d.SetRoad(r2);
+                    }
+                    else
+                    {
+                        d.SetRoad(r1);
+                    }
 
-                const auto& crossed_road = d.GetRoad();
+                    const auto& crossed_road = d.GetRoad();
 
-                auto r1_st = crossed_road.GetStart();
-                auto r1_fn = crossed_road.GetEnd();
-                double lesser_r1_x = (r1_st.x < r1_fn.x ? r1_st.x : r1_fn.x) - road_offset;
-                double greater_r1_x = (r1_st.x > r1_fn.x ? r1_st.x : r1_fn.x) + road_offset;
+                    auto r1_st = crossed_road.GetStart();
+                    auto r1_fn = crossed_road.GetEnd();
+                    double lesser_r1_x = (r1_st.x < r1_fn.x ? r1_st.x : r1_fn.x) - road_offset;
+                    double greater_r1_x = (r1_st.x > r1_fn.x ? r1_st.x : r1_fn.x) + road_offset;
+                    if (dir == "L")
+                    {
+                        if (pos.x + spd.vx * time_sec <= lesser_r1_x)
+                        {
+                            pos.x = lesser_r1_x;
+                            d.SetSpeed(0.0, 0.0);
+                        }
+                        else
+                        {
+                            pos.x += (spd.vx * time_sec);
+                        }
+                    }
+                    else if (dir == "R")
+                    {
+                        if (pos.x + spd.vx * time_sec >= greater_r1_x)
+                        {
+                            pos.x = greater_r1_x;
+                            d.SetSpeed(0.0, 0.0);
+                        }
+                        else
+                        {
+                            pos.x += (spd.vx * time_sec);
+                        }
+                    }
+
+                    in_cross = true;
+                    break;
+                }
+            }
+            if (!in_cross)
+            {
+                double left_bound = r2_st.x - road_offset;
+                double right_bound = r2_st.x + road_offset;
                 if (dir == "L")
                 {
-                    if (pos.x + spd.vx * time_sec <= lesser_r1_x)
+                    if (pos.x + spd.vx * time_sec <= left_bound)
                     {
-                        pos.x = lesser_r1_x;
+                        pos.x = left_bound;
                         d.SetSpeed(0.0, 0.0);
                     }
                     else
@@ -395,11 +434,11 @@ void GameSession::ProcessVerticalRoad(model::Dog& d, const model::Road current_r
                         pos.x += (spd.vx * time_sec);
                     }
                 }
-                else if (dir == "R")
+                else
                 {
-                    if (pos.x + spd.vx * time_sec >= greater_r1_x)
+                    if (pos.x + spd.vx * time_sec >= right_bound)
                     {
-                        pos.x = greater_r1_x;
+                        pos.x = right_bound;
                         d.SetSpeed(0.0, 0.0);
                     }
                     else
@@ -407,39 +446,10 @@ void GameSession::ProcessVerticalRoad(model::Dog& d, const model::Road current_r
                         pos.x += (spd.vx * time_sec);
                     }
                 }
-
-                in_cross = true;
-                break;
             }
         }
-        if (!in_cross)
-        {
-            double left_bound = r2_st.x - road_offset;
-            double right_bound = r2_st.x + road_offset;
-            if (dir == "L")
-            {
-                if (pos.x + spd.vx * time_sec <= left_bound)
-                {
-                    pos.x = left_bound;
-                    d.SetSpeed(0.0, 0.0);
-                }
-                else
-                {
-                    pos.x += (spd.vx * time_sec);
-                }
-            }
-            else
-            {
-                if (pos.x + spd.vx * time_sec >= right_bound)
-                {
-                    pos.x = right_bound;
-                    d.SetSpeed(0.0, 0.0);
-                }
-                else
-                {
-                    pos.x += (spd.vx * time_sec);
-                }
-            }
+        catch (const std::out_of_range& ex) {
+            return;
         }
     }
 }

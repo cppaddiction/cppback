@@ -761,7 +761,7 @@ namespace http_handler {
                     auto req_body = req.body();
                     auto value = js::parse(req_body).as_object();
                     auto time = value.at(TIME_DELTA).as_int64();
-                    //sm_.UpdateAllSessions(time, lg_);
+                    sm_.UpdateAllSessions(time, lg_);
                     players_.SyncronizeSession();
                     listener_->OnTick(time, sm_, players_);
                     std::string result = "{}";/*MoveRequestOrTimeTickRequest(builder);*/

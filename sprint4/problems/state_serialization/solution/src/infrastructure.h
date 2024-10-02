@@ -4,7 +4,6 @@
 #include <fstream>
 #include <sstream>
 #include <filesystem>
-#include <mutex>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/unordered_map.hpp>
 #include <boost/archive/text_iarchive.hpp>
@@ -247,8 +246,7 @@ public:
     }
     
     void Save(const model::SessionManager& sm, const app::Players& players) const override {
-        std::lock_guard<std::mutex> lock(m_);
-        std::ofstream out{ save_path_ };
+        std::ofstream out{ temp_path_ };
         OutputArchive output_archive{ out };
         auto sessions = sm.GetAllSessions();
         output_archive << sessions.size();
@@ -258,12 +256,11 @@ public:
         }
         output_archive << serialization::PlayersRepr{ players };
         out.close();
-        //std::filesystem::rename(temp_path_, save_path_);
+        std::filesystem::rename(temp_path_, save_path_);
     }
 private:
 	std::string save_path_;
     std::uint64_t save_period_;
     std::uint64_t time_since_save_ = 0;
-    mutable std::mutex m_;
-    //std::string temp_path_ = save_path_.substr(0, save_path_.find_last_of('.')) + "temp" + save_path_.substr(save_path_.find_last_of('.'));
+    std::string temp_path_ = save_path_ + "temp";
 };
