@@ -159,7 +159,7 @@ int main(int argc, const char* argv[]) {
             model::Game game = json_loader::LoadGame((*args).config_path);
             loot_gen::LootGenerator lg = json_loader::LoadLootGenerator((*args).config_path);
             app::Players players;
-            model::SessionManager sm(game.GetMaps());
+            model::SessionManager sm;
             // 2. Инициализируем io_context
             const unsigned num_threads = std::thread::hardware_concurrency();
             net::io_context ioc(num_threads);
@@ -177,6 +177,10 @@ int main(int argc, const char* argv[]) {
                     BOOST_LOG_TRIVIAL(info) << logging::add_value(additional_data, custom_data);
                     return EXIT_FAILURE;
                 }
+            }
+            else
+            {
+                sm.Initialize(game.GetMaps());
             }
 
             // 3. Добавляем асинхронный обработчик сигналов SIGINT и SIGTERM

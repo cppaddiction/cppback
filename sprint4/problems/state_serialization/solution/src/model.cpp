@@ -447,11 +447,11 @@ std::uint64_t GameSession::GetId() const { return id_; }
 const std::vector<Dog>& GameSession::GetDogs() const { return dogs_; }
 std::uint64_t GameSession::GetPlayersAmount() const { return dogs_.size(); }
 
-SessionManager::SessionManager(const std::vector<Map>& maps)
+void SessionManager::Initialize(const std::vector<Map>& maps)
 {
     for (const auto& map : maps)
     {
-        active_sessions_.emplace_back(std::make_shared<GameSession>(&map, 0));
+        active_sessions_.push_back(std::make_shared<GameSession>(&map, 0));
     }
 }
 std::shared_ptr<GameSession> SessionManager::FindSession(const Map* m, uint64_t session_id) const

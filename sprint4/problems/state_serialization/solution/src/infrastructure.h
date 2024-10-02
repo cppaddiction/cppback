@@ -219,8 +219,6 @@ public:
     bool Restore(model::SessionManager& sm, app::Players& players, const model::Game& game) const override {
         std::ifstream in{ save_path_ };
         InputArchive input_archive{ in };
-        auto sessions = sm.GetAllSessions();
-        sm.ClearSessions();
         try {
             size_t sessions_count; input_archive >> sessions_count;
             for (int i = 0; i < sessions_count; i++)
@@ -237,10 +235,6 @@ public:
         }
         catch (const boost::archive::archive_exception& ex)
         {
-            for (auto session_ptr : sessions)
-            {
-                sm.AddSession(session_ptr);
-            }
             in.close();
             return false;
         }

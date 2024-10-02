@@ -287,11 +287,12 @@ private:
 
 class SessionManager {
 public:
-    SessionManager(const std::vector<Map>& maps);
+    SessionManager() = default;
+    void Initialize(const std::vector<Map>& maps);
     std::shared_ptr<GameSession> FindSession(const Map* m, uint64_t session_id) const;
     void UpdateAllSessions(std::uint64_t time, loot_gen::LootGenerator lg) const;
     std::vector<std::shared_ptr<GameSession>> GetAllSessions() const { return active_sessions_; }
-    void ClearSessions() { active_sessions_.clear(); }
+    //void ClearSessions() { active_sessions_.clear(); }
     void AddSession(std::shared_ptr<GameSession> session) { active_sessions_.push_back(session); }
 private:
     std::vector<std::shared_ptr<GameSession>> active_sessions_;
