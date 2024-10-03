@@ -13,7 +13,7 @@ permissions:
 
 
 jobs:
-    sprint_4_with_postgress:
+  sprint_4_with_postgress:
     runs-on: ubuntu-22.04
     container:
       image: praktikumcpp/practicum_cpp_backend:latest
