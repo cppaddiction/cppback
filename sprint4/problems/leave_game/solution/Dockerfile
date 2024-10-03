@@ -34,5 +34,7 @@ COPY --from=build /app/build/bin/game_server /app/
 COPY ./data /app/data
 COPY ./static /app/static
 
+ENV GAME_DB_URL=postgres://postgres:Mys3Cr3t@localhost:30432/postgres
+
 # Запускаем игровой сервер
 ENTRYPOINT ["/app/game_server", "-c/app/data/config.json", "-w/app/static/"]
