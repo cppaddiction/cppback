@@ -15,7 +15,7 @@ namespace cpy {
     OutputIt copy(InputIt first, InputIt last, OutputIt d_first)
     {
         for (; first != last; (void)++first, (void)++d_first)
-            *d_first = OutputIt::value_type(*first); //improve STL copy in order to maintain emplace_back() functionality in my program
+            *d_first = typename OutputIt::value_type(*first); //improve STL copy in order to maintain emplace_back() functionality in my program
 
         return d_first;
     }
