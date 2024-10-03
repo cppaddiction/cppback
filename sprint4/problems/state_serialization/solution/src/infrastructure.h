@@ -9,6 +9,16 @@
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
 
+template<class InputIt, class OutputIt>
+OutputIt copy(InputIt first, InputIt last,
+              OutputIt d_first)
+{
+    for (; first != last; (void)++first, (void)++d_first)
+        *d_first = OutputIt::value_type(*first); //improve STL copy in order to maintain emplace_back() functionality in my program
+ 
+    return d_first;
+}
+
 namespace model {
     template <typename Archive>
     void serialize(Archive& ar, model::Position& pos, [[maybe_unused]] const unsigned version) {
@@ -106,8 +116,9 @@ namespace serialization {
             lost_objects_(session.GetLostObjects()),
             loot_count_(session.GetLootCount()), map_(*session.GetMap().GetId())
         {
-            for (const auto& dog : session.GetDogs())
-                dogs_.emplace_back(dog);
+	    const auto& dogs = session.GetDogs();
+	    dogs_.resize(dogs.size());
+	    copy(dogs.begin(), dogs.end(), dogs_.begin());
         }
 
         [[nodiscard]] model::GameSession Restore(const model::Game& game) const {
