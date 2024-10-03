@@ -17,7 +17,7 @@ struct NodePrinter {
 
     void operator() (Array x) const {
         bool is_first = true;
-        out<<'[';
+        out << '[';
         for(const auto& item: x)
         {
             if(is_first)
@@ -27,33 +27,33 @@ struct NodePrinter {
             }
             else
             {
-                out<<',';
+                out << ',';
                 PrintNode(item, out);
             }
         }
-        out<<']';
+        out << ']';
     }
 
     void operator() ([[maybe_unused]] Dict x) const {
 
         bool is_first = true;
-        out<<'{';
+        out << '{';
         for(auto it = x.begin(); it != x.end(); it++)
         {
             if(is_first)
             {
-                out<<"\""<<it->first<<"\""<<':';
+                out << "\"" << it->first << "\"" << ':';
                 PrintNode(it->second, out);
                 is_first = false;
             }
             else
             {
-                out<<',';
-                out<<"\""<<it->first<<"\""<<':';
+                out << ',';
+                out << "\"" << it->first << "\"" << ':';
                 PrintNode(it->second, out);
             }
         }
-        out<<'}';
+        out << '}';
     }
 
     void operator()([[maybe_unused]] bool x) const {
@@ -63,7 +63,7 @@ struct NodePrinter {
         }
         else
         {
-            out<<"false";
+            out << "false";
         }
     }
 
@@ -73,7 +73,7 @@ struct NodePrinter {
 
     void operator()([[maybe_unused]] double x) const {
         
-        if (x-int(x) == 0.0)
+        if (x - int(x) == 0.0)
         {
             std::ostringstream temp; temp << std::setprecision(1) << std::fixed << x;
             out << temp.str();
@@ -85,21 +85,21 @@ struct NodePrinter {
     }
 
     void operator()([[maybe_unused]] std::string x) const {
-        std::string s="";
-        for(int i=0; i<static_cast<int>(x.size()); i++)
+        std::string s = "";
+        for(int i = 0; i < static_cast<int>(x.size()); i++)
         {
-            if(x[i]=='\n')
-                s+="\\n";
-            else if (x[i]=='\r')
-                s+="\\r";
-            else if(x[i]=='"')
+            if(x[i] == '\n')
+                s += "\\n";
+            else if (x[i] == '\r')
+                s += "\\r";
+            else if(x[i] == '"')
                 s += "\\\"";
-            else if(x[i]=='\\')
+            else if(x[i] == '\\')
                s += "\\\\";
             else
                 s += x[i];
         }
-        out<<"\""<<s<<"\"";
+        out << "\"" << s << "\"";
     }
 };
 

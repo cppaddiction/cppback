@@ -9,6 +9,18 @@
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
 
+namespace cpy {
+
+    template<class InputIt, class OutputIt>
+    OutputIt copy(InputIt first, InputIt last, OutputIt d_first)
+    {
+        for (; first != last; (void)++first, (void)++d_first)
+            *d_first = OutputIt::value_type(*first); //improve STL copy in order to maintain emplace_back() functionality in my program
+
+        return d_first;
+    }
+}
+
 namespace model {
     template <typename Archive>
     void serialize(Archive& ar, model::Position& pos, [[maybe_unused]] const unsigned version) {
@@ -110,8 +122,9 @@ namespace serialization {
             lost_objects_(session.GetLostObjects()),
             loot_count_(session.GetLootCount()), map_(*session.GetMap().GetId())
         {
-            for (const auto& dog : session.GetDogs())
-                dogs_.emplace_back(dog);
+            const auto& dogs = session.GetDogs();
+            dogs_.resize(dogs.size());
+            cpy::copy(dogs.begin(), dogs.end(), dogs_.begin());
         }
 
         [[nodiscard]] model::GameSession Restore(const model::Game& game) const {
@@ -150,7 +163,11 @@ namespace serialization {
     public:
         PlayerRepr() = default;
 
-        explicit PlayerRepr(const app::Player& player) : dog_(player.GetDog()), token_(*player.GetAuthToken()), map_(*player.GetSession().GetMap().GetId()), session_id_(player.GetSession().GetId()) {}
+        explicit PlayerRepr(const app::Player& player) : 
+            dog_(player.GetDog()), token_(*player.GetAuthToken()), 
+            map_(*player.GetSession().GetMap().GetId()), 
+            session_id_(player.GetSession().GetId()) {
+        }
 
         [[nodiscard]] app::Player Restore(const model::Game& game, const model::SessionManager& sm) const {
             const model::Map* map = game.FindMap(model::Map::Id{ map_ });

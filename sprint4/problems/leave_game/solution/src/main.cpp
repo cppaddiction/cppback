@@ -174,7 +174,9 @@ int main(int argc, const char* argv[]) {
                 if (!restore)
                 {
                     auto tick = boost::posix_time::microsec_clock::local_time();
-                    boost::json::value custom_data{ {"message", "server failed to restore game state"}, {"timestamp", to_iso_extended_string(tick)}, {"data", boost::json::value{{"code", 1}}} };
+                    boost::json::value custom_data{ {"message", "server failed to restore game state"},
+                        {"timestamp", to_iso_extended_string(tick)},
+                        {"data", boost::json::value{{"code", 1}}} };
                     BOOST_LOG_TRIVIAL(info) << logging::add_value(additional_data, custom_data);
                     return EXIT_FAILURE;
                 }
@@ -187,11 +189,14 @@ int main(int argc, const char* argv[]) {
             // 3. Добавляем асинхронный обработчик сигналов SIGINT и SIGTERM
             // Подписываемся на сигналы и при их получении завершаем работу сервера
             net::signal_set signals(ioc, SIGINT, SIGTERM);
-            signals.async_wait([&ioc, &serializing_listener, &sm, &players, &args](const sys::error_code& ec, [[maybe_unused]] int signal_number) {
+            signals.async_wait([&ioc, &serializing_listener, &sm, &players, &args]
+            (const sys::error_code& ec, [[maybe_unused]] int signal_number) {
                 if (!ec) {
                     ioc.stop();
                     auto tick = boost::posix_time::microsec_clock::local_time();
-                    boost::json::value custom_data{ {"message", "server exited"}, {"timestamp", to_iso_extended_string(tick)}, {"data", boost::json::value{{"code", 0}}} };
+                    boost::json::value custom_data{ {"message", "server exited"},
+                        {"timestamp", to_iso_extended_string(tick)},
+                        {"data", boost::json::value{{"code", 0}}} };
                     BOOST_LOG_TRIVIAL(info) << logging::add_value(additional_data, custom_data);
                     if ((*args).save_path != "")
                     {
@@ -208,15 +213,19 @@ int main(int argc, const char* argv[]) {
                                      conn->prepare("insert_player", "INSERT INTO retired_players (name, score, play_time_ms) VALUES($1, $2, $3);");
                                      return conn;
                                  } };
+
             auto conn = conn_pool.GetConnection();
             pqxx::work w{ *conn };
             w.exec_prepared("create_table");
             w.commit();
-            auto api_handler = http_handler::ApiHandler{ game, players, sm, (*args).tick_period, (*args).randomize_spawn_points, lg, serializing_listener, conn_pool};
+
+            auto api_handler = http_handler::ApiHandler{ game, players, sm,
+                (*args).tick_period, (*args).randomize_spawn_points,
+                lg, serializing_listener, conn_pool};
+
             // 4. Создаём обработчик HTTP-запросов и связываем его с моделью игры
             auto handler = std::make_shared<http_handler::RequestHandler>(game, (*args).static_path, api_strand, api_handler);
             // 5. Запустить обработчик HTTP-запросов, делегируя их обработчику запросов
-
             auto ticker = std::make_shared<Ticker>(api_strand, std::chrono::milliseconds((*args).tick_period),
                 [&api_handler](std::chrono::milliseconds delta) {
                     api_handler.Tick(delta.count());
@@ -242,7 +251,10 @@ int main(int argc, const char* argv[]) {
             // Эта надпись сообщает тестам о том, что сервер запущен и готов обрабатывать запросы
             //std::cout << "Server has started..."sv << std::endl;
             auto tick = boost::posix_time::microsec_clock::local_time();
-            boost::json::value custom_data{ {"message", "server started"}, {"timestamp", to_iso_extended_string(tick)}, {"data", boost::json::value{{"port", 8080}, {"address", "0.0.0.0"}}} };
+            boost::json::value custom_data{ {"message", "server started"},
+                {"timestamp", to_iso_extended_string(tick)},
+                {"data", boost::json::value{{"port", 8080},
+                {"address", "0.0.0.0"}}} };
             BOOST_LOG_TRIVIAL(info) << logging::add_value(additional_data, custom_data);
             // 6. Запускаем обработку асинхронных операций
             RunWorkers(num_threads, [&ioc] {
@@ -259,7 +271,10 @@ int main(int argc, const char* argv[]) {
     catch (const std::exception& ex) {
         std::ostringstream temp; temp << ex.what();
         auto tick = boost::posix_time::microsec_clock::local_time();
-        boost::json::value custom_data{ {"message", "server exited"}, {"timestamp", to_iso_extended_string(tick)}, {"data", boost::json::value{{"code", EXIT_FAILURE}, {"exception", temp.str()}}} };
+        boost::json::value custom_data{ {"message", "server exited"},
+            {"timestamp", to_iso_extended_string(tick)},
+            {"data", boost::json::value{{"code", EXIT_FAILURE},
+            {"exception", temp.str()}}} };
         BOOST_LOG_TRIVIAL(info) << logging::add_value(additional_data, custom_data);
         return EXIT_FAILURE;
     }

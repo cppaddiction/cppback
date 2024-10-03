@@ -90,11 +90,19 @@ void LoadRoads(const json::array& roads, model::Map& map)
         ::boost::json::value const* const p_value{ r.as_object().if_contains(X1) };
         if (p_value)
         {
-            map.AddRoad(model::Road{ model::Road::HORIZONTAL, model::Point{static_cast<int>(r.as_object().at(X0).as_int64()), static_cast<int>(r.as_object().at(Y0).as_int64())},  static_cast<int>(r.as_object().at(X1).as_int64()), *map.GetId(), model::Road::Id{road_ids++} });
+            map.AddRoad(model::Road{ model::Road::HORIZONTAL, 
+                model::Point{static_cast<int>(r.as_object().at(X0).as_int64()),
+                static_cast<int>(r.as_object().at(Y0).as_int64())},  
+                static_cast<int>(r.as_object().at(X1).as_int64()), 
+                *map.GetId(), model::Road::Id{road_ids++} });
         }
         else
         {
-            map.AddRoad(model::Road{ model::Road::VERTICAL, model::Point{static_cast<int>(r.as_object().at(X0).as_int64()), static_cast<int>(r.as_object().at(Y0).as_int64())},  static_cast<int>(r.as_object().at(Y1).as_int64()), *map.GetId(), model::Road::Id{road_ids++} });
+            map.AddRoad(model::Road{ model::Road::VERTICAL,
+                model::Point{static_cast<int>(r.as_object().at(X0).as_int64()),
+                static_cast<int>(r.as_object().at(Y0).as_int64())},
+                static_cast<int>(r.as_object().at(Y1).as_int64()),
+                *map.GetId(), model::Road::Id{road_ids++} });
         }
     }
     map.CreateRoadGrid();
@@ -103,14 +111,23 @@ void LoadBuildings(const json::array& buildings, model::Map& map)
 {
     for (const auto& b : buildings)
     {
-        map.AddBuilding(model::Building{ model::Rectangle{model::Point{static_cast<int>(b.as_object().at(X).as_int64()), static_cast<int>(b.as_object().at(Y).as_int64())}, model::Size{static_cast<int>(b.as_object().at(W).as_int64()), static_cast<int>(b.as_object().at(H).as_int64())}} });
+        map.AddBuilding(model::Building{ model::Rectangle{
+            model::Point{static_cast<int>(b.as_object().at(X).as_int64()),
+            static_cast<int>(b.as_object().at(Y).as_int64())},
+            model::Size{static_cast<int>(b.as_object().at(W).as_int64()),
+            static_cast<int>(b.as_object().at(H).as_int64())}} });
     }
 }
 void LoadOffices(const json::array& offices, model::Map& map)
 {
     for (const auto& o : offices)
     {
-        map.AddOffice(model::Office{ model::Office::Id(static_cast<std::string>(o.as_object().at(ID).as_string())), model::Point{static_cast<int>(o.as_object().at(X).as_int64()), static_cast<int>(o.as_object().at(Y).as_int64())}, model::Offset{static_cast<int>(o.as_object().at(OffsetX).as_int64()), static_cast<int>(o.as_object().at(OffsetY).as_int64())} });
+        map.AddOffice(model::Office{ 
+            model::Office::Id(static_cast<std::string>(o.as_object().at(ID).as_string())),
+            model::Point{static_cast<int>(o.as_object().at(X).as_int64()),
+            static_cast<int>(o.as_object().at(Y).as_int64())},
+            model::Offset{static_cast<int>(o.as_object().at(OffsetX).as_int64()),
+            static_cast<int>(o.as_object().at(OffsetY).as_int64())} });
     }
 }
 model::Game LoadGame(const std::filesystem::path& json_path) {

@@ -24,14 +24,14 @@ public:
     using Value = std::variant<std::nullptr_t, Array, Dict, bool, int, double, std::string>;
 
     Node();
-    Node(Value value);
-    Node(Array array);
-    Node(Dict map);
-    Node(int value);
-    Node(std::string value);
-    Node(double x);
-    Node(bool x);
-    Node(nullptr_t x);
+    Node(Value value); // can't put explicit keyword here because Builder::Value method requires this constructor to be non-explicit
+    explicit Node(Array array);
+    explicit Node(Dict map);
+    explicit Node(int value);
+    explicit Node(std::string value);
+    explicit Node(double x);
+    explicit Node(bool x);
+    explicit Node(nullptr_t x);
 
     bool IsInt() const;
     bool IsDouble() const;
@@ -51,7 +51,7 @@ public:
 
     const Value& GetValue() const { return value_; }
     Value& GetValue() { return value_; }
-    bool operator==(const Node& n) const {return GetValue()==n.GetValue()?true:false;}
+    bool operator==(const Node& n) const {return GetValue()==n.GetValue();}
     bool operator!=(const Node& n) const {return !(*this==n);}
 
 private:
