@@ -423,7 +423,7 @@ namespace http_handler {
         build_lost_objects.StartDict();
         for (auto it = lost_objects.begin(); it!=lost_objects.end(); it++)
         {
-            json::Array point_info = {(it->second).GetX(), (it->second).GetY()};
+            json::Array point_info = json::Array{(it->second).GetX(), (it->second).GetY()};
             json::Builder helpbuilder;
             helpbuilder.StartDict();
             helpbuilder.Key(TYPE).Value((it->second).GetType()).Key(POS).Value(point_info);
