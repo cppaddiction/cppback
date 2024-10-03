@@ -1,4 +1,5 @@
 #include "sdk.h"
+#include <stdlib.h>
 //
 #include <boost/asio/signal_set.hpp>
 #include <boost/asio/io_context.hpp>
