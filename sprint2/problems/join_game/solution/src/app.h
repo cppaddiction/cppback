@@ -9,7 +9,7 @@ namespace app {
     class PlayerToken {
 	const int max_token_length = 32;
     public:
-	PlayerToken::PlayerToken() {
+	PlayerToken() {
     		strm_ << std::hex << generator1_() << generator2_();
     		int x = strm_.str().size();
     		if (x < max_token_length)
@@ -31,10 +31,10 @@ namespace app {
             std::uniform_int_distribution<std::mt19937_64::result_type> dist;
             return dist(random_device_);
         }() };
-        // Чтобы сгенерировать токен, получите из generator1_ и generator2_
-        // два 64-разрядных числа и, переведя их в hex-строки, склейте в одну.
-        // Вы можете поэкспериментировать с алгоритмом генерирования токенов,
-        // чтобы сделать их подбор ещё более затруднительным
+        //                          ,             generator1_   generator2_
+        //     64-                 ,               hex-      ,               .
+        //                                                                  ,
+        //                                                  
         std::ostringstream strm_;
     };
 
