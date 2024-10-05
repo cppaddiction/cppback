@@ -7,8 +7,19 @@ namespace app {
     using Token = util::Tagged<std::string, detail::TokenTag>;
 
     class PlayerToken {
+	const int max_token_length = 32;
     public:
-        PlayerToken() {  strm_ << std::hex << generator1_() << generator2_(); }
+	PlayerToken() {
+    		strm_ << std::hex << generator1_() << generator2_();
+    		int x = strm_.str().size();
+    		if (x < max_token_length)
+    		{
+        		for (int i = 0; i < max_token_length - x; i++)
+        		{
+            			strm_ << '0';
+        		}
+    		}
+	}
         Token GetToken() const { return Token{ strm_.str() }; }
     private:
         std::random_device random_device_;
