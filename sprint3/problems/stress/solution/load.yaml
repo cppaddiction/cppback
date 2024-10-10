@@ -7,7 +7,7 @@ phantom:
   load_profile:
     load_type: rps                          # тип нагрузки
     schedule: const(100000, 1m)               # линейный профиль от 5 до 30 rps в течение минуты
-  instances: 1000
+  instances: 10000
   ssl: false                                # если нужна поддержка https, то нужно указать true
 autostop:
   autostop:                                 # автоостановка теста при 10% ошибок с кодом 5хх в течение 5 секунд
