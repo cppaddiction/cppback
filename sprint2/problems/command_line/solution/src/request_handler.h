@@ -25,6 +25,9 @@
 #include <boost/log/utility/setup/console.hpp>
 #include "app.h"
 
+// boost.beast будет использовать std::string_view вместо boost::string_view
+#define BOOST_BEAST_USE_STD_STRING_VIEW
+
 BOOST_LOG_ATTRIBUTE_KEYWORD(additional_data, "AdditionalData", boost::json::value)
 
 namespace http_handler {
@@ -304,7 +307,7 @@ namespace http_handler {
             {
                 auto handle = [self = shared_from_this(), send, req = std::forward<decltype(req)>(req)] {
                     try {
-                        //      assert             ,               -                                 strand
+                        // Этот assert не выстрелит, так как лямбда-функция будет выполняться внутри strand
                         assert(self->api_strand_.running_in_this_thread());
                         int time;
                         DurationMeasure* dm = new DurationMeasure(time);

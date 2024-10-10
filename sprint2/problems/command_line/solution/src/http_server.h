@@ -6,9 +6,6 @@
 #include <string_view>
 #include "json.h"
 #include "json_builder.h"
-// boost.beast будет использовать std::string_view вместо boost::string_view
-#define BOOST_BEAST_USE_STD_STRING_VIEW
-
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/write.hpp>
 #include <boost/asio/strand.hpp>
