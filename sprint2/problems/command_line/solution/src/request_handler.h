@@ -1,11 +1,11 @@
 #pragma once
-#include <string>
-#include <string_view>
 #include <filesystem>
 #include <sstream>
 #include <variant>
+#include "model.h"
 #include "json.h"
 #include "json_builder.h"
+#include "http_server.h"
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/write.hpp>
 #include <boost/asio/strand.hpp>
@@ -15,20 +15,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/json.hpp>
-#include <boost/log/trivial.hpp>
-#include <boost/log/core.hpp>
-#include <boost/log/expressions.hpp>
-#include <boost/date_time.hpp>
-#include <boost/log/utility/setup/file.hpp>
-#include <boost/log/utility/setup/common_attributes.hpp>
-#include <boost/log/utility/manipulators/add_value.hpp>
-#include <boost/log/utility/setup/console.hpp>
 #include "app.h"
-
-// boost.beast будет использовать std::string_view вместо boost::string_view
-#define BOOST_BEAST_USE_STD_STRING_VIEW
-
-BOOST_LOG_ATTRIBUTE_KEYWORD(additional_data, "AdditionalData", boost::json::value)
 
 namespace http_handler {
     namespace net = boost::asio;

@@ -7,7 +7,9 @@
 #include <vector>
 
 #include "json_loader.h"
-#include "http_server.h"
+#include "request_handler.h"
+
+#include "app.h"
 
 #include <boost/program_options.hpp>
 

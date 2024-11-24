@@ -6,13 +6,25 @@
 #include <string_view>
 #include "json.h"
 #include "json_builder.h"
+// boost.beast будет использовать std::string_view вместо boost::string_view
+#define BOOST_BEAST_USE_STD_STRING_VIEW
+
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/write.hpp>
 #include <boost/asio/strand.hpp>
 #include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp>
+#include <boost/log/trivial.hpp>
+#include <boost/log/core.hpp>
+#include <boost/log/expressions.hpp>
+#include <boost/date_time.hpp>
+#include <boost/log/utility/setup/file.hpp>
+#include <boost/log/utility/setup/common_attributes.hpp>
+#include <boost/log/utility/manipulators/add_value.hpp>
+#include <boost/log/utility/setup/console.hpp>
 #include <boost/json.hpp>
-#include "request_handler.h"
+
+BOOST_LOG_ATTRIBUTE_KEYWORD(additional_data, "AdditionalData", boost::json::value)
 
 namespace http_server {
 
